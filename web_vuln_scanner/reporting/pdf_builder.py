@@ -551,6 +551,10 @@ def generate_audit_report(scan_data: dict, output_filename: str):
 
     risk_badge_color = '#dc2626' if risk_level == 'CRITICAL' else ('#ea580c' if risk_level == 'HIGH' else ('#ca8a04' if risk_level == 'MEDIUM' else '#0284c7'))
 
+    status_str = str(scan_data.get('scan_status', 'COMPLETE')).upper()
+    coverage = scan_data.get('scan_coverage', {})
+    waf_info = f" [WAF Blocked: {coverage.get('waf_reason')[:28]}...]" if coverage.get('is_waf_blocked') else " [All Checks Executed]"
+
     meta_rows = [
         [
             Paragraph("Target Endpoint", styles['MetaKey']),
@@ -565,8 +569,8 @@ def generate_audit_report(scan_data: dict, output_filename: str):
             Paragraph(f"<b>{total_exceptions} Detected Exceptions</b> ({len(headers_findings)} Headers, {len(js_findings)} JS)", styles['MetaValCode']),
         ],
         [
-            Paragraph("Audit Methodology", styles['MetaKey']),
-            Paragraph("Deterministic Rule-Based Analysis + Retire.js SCA", styles['MetaVal']),
+            Paragraph("Scan Coverage", styles['MetaKey']),
+            Paragraph(f"<b>{status_str}</b><font color='#64748b'>{waf_info}</font>", styles['MetaVal']),
             Paragraph("Classification", styles['MetaKey']),
             Paragraph("Internal Technical IT Audit", styles['MetaVal']),
         ],

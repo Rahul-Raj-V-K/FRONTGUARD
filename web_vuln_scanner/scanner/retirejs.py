@@ -1,6 +1,7 @@
 import re
 import urllib.parse
 import requests
+from scanner.reliability import BoundedTTLCache, CONNECT_TIMEOUT_API, READ_TIMEOUT_API
 
 # ---------------------------------------------------------------------------
 # Custom Version Comparer (CustomVersion / SemVer)
@@ -184,8 +185,8 @@ RETIREJS_TO_NPM_MAP = {
 # Alias for backwards compatibility
 NPM_PACKAGE_MAP = RETIREJS_TO_NPM_MAP
 
-_OSV_CACHE: dict[tuple[str, str], list[dict]] = {}
-_NPM_LATEST_CACHE: dict[str, str] = {}
+_OSV_CACHE = BoundedTTLCache(maxsize=512, ttl=3600.0)
+_NPM_LATEST_CACHE = BoundedTTLCache(maxsize=256, ttl=3600.0)
 _RETIREJS_REPO_CACHE: dict | None = None
 _RETIREJS_REPO_TIMESTAMP: float = 0.0
 
@@ -270,9 +271,10 @@ def query_osv_vulnerabilities(npm_package: str, version_str: str, timeout: float
     if not npm_package or not version_str or version_str.lower() in ('unknown', 'version unknown'):
         return ([], False)
 
-    cache_key = (npm_package, version_str)
-    if cache_key in _OSV_CACHE:
-        return (_OSV_CACHE[cache_key], True)
+    cache_key = f"{npm_package}::{version_str}"
+    hit, cached = _OSV_CACHE.get(cache_key)
+    if hit:
+        return (cached, True)
 
     payload = {
         'package': {
@@ -286,7 +288,7 @@ def query_osv_vulnerabilities(npm_package: str, version_str: str, timeout: float
         resp = requests.post(
             'https://api.osv.dev/v1/query',
             json=payload,
-            timeout=timeout,
+            timeout=(CONNECT_TIMEOUT_API, READ_TIMEOUT_API),
             headers={'User-Agent': 'Mozilla/5.0 (compatible; WebVulnScanner/2.0)'}
         )
         if resp.status_code != 200:
@@ -349,7 +351,7 @@ def query_osv_vulnerabilities(npm_package: str, version_str: str, timeout: float
                 'severity': sev,
             })
 
-        _OSV_CACHE[cache_key] = parsed_vulns
+        _OSV_CACHE.set(cache_key, parsed_vulns)
         return (parsed_vulns, True)
 
     except Exception:
@@ -1080,7 +1082,11 @@ def _calculate_confidence(signals: list[str], has_conflict: bool = False) -> str
     if any(s.startswith('URL Path') for s in signals):
         return 'Medium'
 
-    # Query string alone is Low
+    # Core path query string alone is trusted as library version: Medium
+    if any('Core Path' in s for s in signals):
+        return 'Medium'
+
+    # Query string alone (or plugin/theme path) is Low
     return 'Low'
 
 
@@ -1190,11 +1196,28 @@ def detect_components(script_srcs: list[str], inline_scripts: list[str] = None, 
                     elif sig not in detected[dkey]['signals']:
                         detected[dkey]['signals'].append(sig)
 
-    # 3. External Script Content Inspection (up to 16 external scripts)
+    # 3. External Script Content Inspection (concurrent with bounded ThreadPoolExecutor)
     # Allows bundled vendor scripts to match multiple libraries
     scripts_to_fetch = script_srcs[:16]
+    fetched_contents = {}
+    if scripts_to_fetch:
+        import concurrent.futures
+        def _fetch_worker(s):
+            return s, _fetch_script_content(s, base_url)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            future_to_src = {executor.submit(_fetch_worker, s): s for s in scripts_to_fetch}
+            for fut in concurrent.futures.as_completed(future_to_src):
+                try:
+                    s, (content, is_truncated) = fut.result()
+                    fetched_contents[s] = (content, is_truncated)
+                except Exception:
+                    pass
+
     for src in scripts_to_fetch:
-        content, is_truncated = _fetch_script_content(src, base_url)
+        if src not in fetched_contents:
+            continue
+        content, is_truncated = fetched_contents[src]
         if not content:
             continue
 
@@ -1294,28 +1317,59 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
             })
             continue
 
+        # Unmapped library handling
+        if lib_key not in RETIREJS_TO_NPM_MAP:
+            components_inventory.append({
+                'name': name,
+                'version': ver_str,
+                'source': source,
+                'method': method,
+                'confidence': confidence,
+                'is_vulnerable': False,
+                'severity': 'info',
+                'cves': [],
+                'fixed_in': 'N/A',
+                'remediation': f"Package name mapping not found for '{lib_key}'. Manual dependency verification required.",
+                'status': 'LOOKUP_FAILED',
+                'data_source': 'Resolution Failed',
+                'is_truncated': is_truncated,
+            })
+            continue
+
         meta = RETIREJS_DB.get(lib_key, {})
-        npm_pkg = NPM_PACKAGE_MAP.get(lib_key)
+        npm_pkg = RETIREJS_TO_NPM_MAP.get(lib_key)
         sem_ver = SemVer(ver_str)
 
         # Check latest version on npm
         latest_npm = query_npm_latest_version(npm_pkg) if npm_pkg else None
         safe_version = latest_npm or meta.get('safe_version', 'Latest stable')
 
-        # Live lookup via OSV.dev
-        osv_vulns, is_live = query_osv_vulnerabilities(npm_pkg, ver_str) if npm_pkg and sem_ver.is_valid else ([], False)
+        # Live lookups: Retire.js jsrepository.json & OSV.dev
+        repo_data, is_repo_live = fetch_retirejs_repository()
+        repo_vulns = query_retirejs_repo_vulnerabilities(lib_key, ver_str, repo_data) if is_repo_live else []
+
+        osv_vulns, is_osv_live = query_osv_vulnerabilities(npm_pkg, ver_str) if npm_pkg and sem_ver.is_valid else ([], False)
+        is_live = is_osv_live or is_repo_live
 
         if is_live:
-            # Sourced live from OSV.dev
-            if osv_vulns:
+            # Combine and deduplicate live advisories from OSV.dev and Retire.js
+            seen_ids = set()
+            live_vulns = []
+            for v in osv_vulns + repo_vulns:
+                vid = v.get('primary_cve') or v.get('id')
+                if vid not in seen_ids:
+                    seen_ids.add(vid)
+                    live_vulns.append(v)
+
+            if live_vulns:
                 all_cves = []
-                for ov in osv_vulns:
-                    for c in ov['cves']:
+                for ov in live_vulns:
+                    for c in ov.get('cves', []):
                         if c not in all_cves:
                             all_cves.append(c)
 
                 sev_rank = {'critical': 4, 'high': 3, 'medium': 2, 'low': 1, 'info': 0}
-                worst_ov = max(osv_vulns, key=lambda v: sev_rank.get(v['severity'], 0))
+                worst_ov = max(live_vulns, key=lambda v: sev_rank.get(v.get('severity', 'medium'), 0))
                 fixed_in = worst_ov.get('fixed_version') or safe_version
                 remediation = f"Upgrade to {name} {fixed_in} or newer."
                 ref_link = worst_ov.get('reference_link') or f"https://osv.dev/vulnerability/{worst_ov['id']}"
@@ -1328,16 +1382,16 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
                     f"Known CVEs: {', '.join(all_cves) if all_cves else worst_ov['id']}\n"
                     f"Fixed in Version: {fixed_in}\n"
                     f"Advisory Link: {ref_link}\n"
-                    f"Data Source: OSV.dev (Live Lookup)"
+                    f"Data Source: OSV.dev / Retire.js (Live Lookup)"
                 )
                 if is_truncated:
                     evidence_text += "\nNote: Remote file was truncated at 256KB during analysis."
 
                 findings.append({
-                    'vuln_type': f'Outdated Component: {name} v{ver_str} (OSV.dev)',
-                    'severity': worst_ov['severity'],
+                    'vuln_type': f'Outdated Component: {name} v{ver_str} (Live Lookup)',
+                    'severity': worst_ov.get('severity', 'medium'),
                     'description': (
-                        f"Live OSV.dev lookup detected security vulnerabilities in '{name}' (version {ver_str}). "
+                        f"Live security advisory lookup detected vulnerabilities in '{name}' (version {ver_str}). "
                         f"{worst_ov['summary']} Fixed in: {fixed_in}. Remediation: {remediation}"
                     ),
                     'evidence': evidence_text,
@@ -1352,7 +1406,7 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
                     'reference_link': ref_link,
                     'remediation': remediation,
                     'detection_method': f"{method} (Confidence: {confidence})",
-                    'data_source': 'OSV.dev (Live)',
+                    'data_source': 'OSV.dev / Retire.js (Live)',
                 })
 
                 components_inventory.append({
@@ -1362,16 +1416,16 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
                     'method': method,
                     'confidence': confidence,
                     'is_vulnerable': True,
-                    'severity': worst_ov['severity'],
+                    'severity': worst_ov.get('severity', 'medium'),
                     'cves': all_cves or [worst_ov['id']],
                     'fixed_in': fixed_in,
                     'remediation': remediation,
                     'status': 'VULNERABLE',
-                    'data_source': 'OSV.dev (Live)',
+                    'data_source': 'OSV.dev / Retire.js (Live)',
                     'is_truncated': is_truncated,
                 })
             else:
-                # No vulnerabilities in live OSV database
+                # No vulnerabilities found in live databases
                 components_inventory.append({
                     'name': name,
                     'version': ver_str,
@@ -1382,9 +1436,9 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
                     'severity': 'info',
                     'cves': [],
                     'fixed_in': 'N/A',
-                    'remediation': 'Up-to-date according to OSV.dev database.',
+                    'remediation': 'Up-to-date according to live security databases.',
                     'status': 'UP-TO-DATE',
-                    'data_source': 'OSV.dev (Live)',
+                    'data_source': 'OSV.dev / Retire.js (Live)',
                     'is_truncated': is_truncated,
                 })
 
@@ -1424,18 +1478,18 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
                     f"Known CVEs: {', '.join(display_cves) if display_cves else 'EOL Advisory'}\n"
                     f"Fixed in Version: {fixed_in}\n"
                     f"Advisory Link: {source_link}\n"
-                    f"Data Source: Local Offline Database (Live lookup unavailable; data may be outdated)"
+                    f"Data Source: Local Offline Database (Fallback - live lookup unavailable; data may be outdated)"
                 )
                 if is_truncated:
                     evidence_text += "\nNote: Remote file was truncated at 256KB during analysis."
 
                 findings.append({
-                    'vuln_type': f'Outdated Component: {name} v{ver_str} (Retire.js)',
+                    'vuln_type': f'Outdated Component: {name} v{ver_str} (Local Offline Fallback)',
                     'severity': worst_rule['severity'],
                     'description': (
-                        f"Retire.js detected vulnerable/outdated client-side library '{name}' (version {ver_str}). "
+                        f"Retire.js local offline database detected vulnerable library '{name}' (version {ver_str}). "
                         f"{combined_summary} Fixed in: {fixed_in}. Remediation: {remediation} "
-                        "(Note: Vulnerability data retrieved from local offline database; live lookup unavailable)."
+                        "(Note: Sourced from local offline fallback database; live lookup unavailable)."
                     ),
                     'evidence': evidence_text,
                     'component': name,
@@ -1449,7 +1503,7 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
                     'reference_link': source_link,
                     'remediation': remediation,
                     'detection_method': f"{method} (Confidence: {confidence})",
-                    'data_source': 'Local Offline Database',
+                    'data_source': 'Local Offline Database (Fallback)',
                 })
 
                 components_inventory.append({
@@ -1464,7 +1518,7 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
                     'fixed_in': fixed_in,
                     'remediation': remediation,
                     'status': 'VULNERABLE',
-                    'data_source': 'Local Offline Database',
+                    'data_source': 'Local Offline Database (Fallback)',
                     'is_truncated': is_truncated,
                 })
             else:
@@ -1478,9 +1532,9 @@ def scan_retirejs(script_srcs: list[str], inline_scripts: list[str] = None, base
                     'severity': 'info',
                     'cves': [],
                     'fixed_in': 'N/A',
-                    'remediation': 'Up-to-date',
+                    'remediation': 'Up-to-date according to local fallback rules (offline mode).',
                     'status': 'UP-TO-DATE',
-                    'data_source': 'Local Offline Database',
+                    'data_source': 'Local Offline Database (Fallback)',
                     'is_truncated': is_truncated,
                 })
 

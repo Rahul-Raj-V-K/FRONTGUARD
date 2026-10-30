@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Legacy Outdated Component Benchmark</title>
+  <!-- Simulating HTTP Headers:
+       X-Frame-Options: (absent)
+       X-Content-Type-Options: (absent)
+       Content-Security-Policy: (absent)
+  -->
+  <script src="https://code.jquery.com/jquery-1.8.2.min.js"></script>
+</head>
+<body>
+  <h1>Test Target: Vulnerable Client-Side Library</h1>
+  <p>Loads jQuery 1.8.2 with known XSS and Prototype Pollution vulnerabilities.</p>
+  <script>
+    /*! jQuery v1.8.2 jquery.com | jquery.org/license */
+    var appVersion = "1.0.0";
+  </script>
+</body>
+</html>

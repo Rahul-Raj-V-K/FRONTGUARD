@@ -11,14 +11,15 @@ from scanner.extractor import extract_target_data
 from scanner.matcher import run_matcher
 from scanner.retirejs import scan_retirejs
 from reporting.pdf_builder import generate_audit_report
+from scanner.reliability import BoundedTTLCache, ScanBudget, GLOBAL_SCAN_BUDGET, ScanStatus
 
 app = Flask(__name__)
 app.secret_key = 'change-this-in-production-32bytes'
 
 REPORTS_DIR = os.path.join(os.path.dirname(__file__), 'reports')
 
-# In-memory findings cache keyed by scan row ID
-_findings_cache: dict[int, dict] = {}
+# Thread-safe bounded TTL in-memory findings cache (max 100 entries, 2 hour TTL)
+_findings_cache = BoundedTTLCache(maxsize=100, ttl=7200.0)
 
 
 @app.before_request
@@ -55,6 +56,18 @@ def dummy_scan(url: str) -> dict:
     target_ip = target_data.get('target_ip', 'N/A')
     # Findings from comparing HTTP-redirect headers vs final HTTPS headers
     header_diff_findings = target_data.get('header_diff_findings', [])
+    scan_coverage = target_data.get('scan_coverage', {})
+    is_waf_blocked = target_data.get('is_waf_blocked', False)
+    scan_status = ScanStatus.BLOCKED if is_waf_blocked else ScanStatus.COMPLETE
+
+    # Enforce SSRF protection
+    if target_data.get('is_ssrf_blocked'):
+        return {
+            'status':  'failed',
+            'error':   f'Target blocked for SSRF prevention (Resolved IP: {target_ip} in private or loopback range).',
+            'url':     url,
+            'target_ip': target_ip,
+        }
 
     if not headers:
         return {
@@ -137,6 +150,9 @@ def dummy_scan(url: str) -> dict:
         'javascript_versions': js_vulns,
         'vulnerabilities':     vulnerabilities,
         'components':          components_inventory,
+        'scan_status':         scan_status,
+        'scan_coverage':       scan_coverage,
+        'is_waf_blocked':      is_waf_blocked,
     }
 
     # Step 3 — PDF generation (save directly to /reports)
@@ -161,7 +177,9 @@ def dummy_scan(url: str) -> dict:
     cache_payload = {
         'findings': vulnerabilities,
         'components': components_inventory,
-        'target_ip': target_ip
+        'target_ip': target_ip,
+        'scan_status': scan_status,
+        'scan_coverage': scan_coverage,
     }
     try:
         with open(findings_json_path, 'w', encoding='utf-8') as f:
@@ -170,16 +188,22 @@ def dummy_scan(url: str) -> dict:
         pass
 
     # Cache findings and components in memory
-    _findings_cache[row_id] = cache_payload
+    _findings_cache.set(str(row_id), cache_payload)
 
     # Step 5 — Return finalized dict to the Flask frontend
     return {
-        'status':       'complete',
+        'status':       scan_status,
         'scan_id':      row_id,
         'url':          url,
         'target_ip':    target_ip,
         'date':         scan_date,
         'risk_level':   risk_level,
+        'findings':     vulnerabilities,
+        'components':   components_inventory,
+        'total':        len(vulnerabilities),
+        'pdf_path':     final_pdf_path,
+        'scan_coverage': scan_coverage,
+    }
         'findings':     vulnerabilities,
         'components':   components_inventory,
         'total':        len(vulnerabilities),
@@ -223,14 +247,14 @@ def scan_result(scan_id):
     if not scan:
         abort(404)
 
-    cached_data = _findings_cache.get(scan_id)
-    if cached_data is None:
+    hit, cached_data = _findings_cache.get(str(scan_id))
+    if not hit or cached_data is None:
         findings_json_path = os.path.join(REPORTS_DIR, f'scan_{scan_id}_findings.json')
         if os.path.isfile(findings_json_path):
             try:
                 with open(findings_json_path, 'r', encoding='utf-8') as f:
                     cached_data = json.load(f)
-                    _findings_cache[scan_id] = cached_data
+                    _findings_cache.set(str(scan_id), cached_data)
             except Exception:
                 cached_data = []
         else:
@@ -315,14 +339,14 @@ def download_pdf(scan_id):
     if not scan:
         abort(404)
 
-    cached_data = _findings_cache.get(scan_id)
-    if cached_data is None:
+    hit, cached_data = _findings_cache.get(str(scan_id))
+    if not hit or cached_data is None:
         findings_json_path = os.path.join(REPORTS_DIR, f'scan_{scan_id}_findings.json')
         if os.path.isfile(findings_json_path):
             try:
                 with open(findings_json_path, 'r', encoding='utf-8') as f:
                     cached_data = json.load(f)
-                    _findings_cache[scan_id] = cached_data
+                    _findings_cache.set(str(scan_id), cached_data)
             except Exception:
                 cached_data = []
         else:

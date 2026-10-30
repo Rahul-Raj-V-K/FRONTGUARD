@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weak CSP Test Benchmark</title>
+  <!-- Simulating HTTP Headers:
+       Content-Security-Policy: default-src * 'unsafe-inline' 'unsafe-eval';
+       Strict-Transport-Security: max-age=0
+       Server: Apache/2.4.41 (Ubuntu)
+       X-Powered-By: PHP/7.4.3
+  -->
+</head>
+<body>
+  <h1>Test Target: Permissive & Weak Security Controls</h1>
+  <p>This benchmark page simulates typical security misconfigurations:</p>
+  <ul>
+    <li>Wildcard default-src with 'unsafe-inline' and 'unsafe-eval'</li>
+    <li>Absent object-src, base-uri, and frame-ancestors</li>
+    <li>HSTS max-age=0 (invalid/disabled)</li>
+    <li>Server version disclosure & X-Powered-By header</li>
+  </ul>
+  <script>
+    eval("var test = 'insecure';");
+  </script>
+</body>
+</html>
