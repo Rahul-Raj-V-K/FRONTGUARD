@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {
+      "vuln_type": "Missing Security Header: permissions-policy",
+      "severity": "low",
+      "description": "Permissions-Policy header is missing. Sensitive browser features (camera, microphone, geolocation) are not restricted.",
+      "evidence": "Header 'permissions-policy' was not returned by the server."
+    },
+    {
+      "vuln_type": "Information Disclosure in HTML Comment",
+      "severity": "low",
+      "description": "HTML comment contains developer keywords (TODO, fixme, credentials, admin).",
+      "evidence": "Comment: Password Input with Absolute position fix"
+    }
+  ],
+  "components": [
+    {
+      "name": "jQuery",
+      "version": "3.6.0",
+      "source": "https://code.jquery.com/jquery-3.6.0.min.js",
+      "is_vulnerable": false,
+      "severity": "low",
+      "cves": [],
+      "remediation": "Up-to-date",
+      "status": "UP-TO-DATE"
+    },
+    {
+      "name": "Bootstrap",
+      "version": "4.5.2",
+      "source": "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js",
+      "is_vulnerable": false,
+      "severity": "low",
+      "cves": [],
+      "remediation": "Up-to-date",
+      "status": "UP-TO-DATE"
+    }
+  ],
+  "target_ip": "3.111.249.7"
+}

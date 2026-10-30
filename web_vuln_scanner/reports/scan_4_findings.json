@@ -1,0 +1,38 @@
+[
+  {
+    "vuln_type": "Missing Security Header",
+    "severity": "high",
+    "description": "Content-Security-Policy header is missing. This leaves the app open to XSS attacks.",
+    "evidence": "Header 'content-security-policy' not found in response"
+  },
+  {
+    "vuln_type": "Missing Security Header",
+    "severity": "medium",
+    "description": "X-Frame-Options is missing. The page may be vulnerable to clickjacking.",
+    "evidence": "Header 'x-frame-options' not found in response"
+  },
+  {
+    "vuln_type": "Missing Security Header",
+    "severity": "low",
+    "description": "X-Content-Type-Options not set. Browsers may MIME-sniff responses incorrectly.",
+    "evidence": "Header 'x-content-type-options' not found in response"
+  },
+  {
+    "vuln_type": "Missing Security Header",
+    "severity": "high",
+    "description": "HSTS header missing. HTTPS is not enforced, enabling downgrade attacks.",
+    "evidence": "Header 'strict-transport-security' not found in response"
+  },
+  {
+    "vuln_type": "Missing Security Header",
+    "severity": "low",
+    "description": "Referrer-Policy not set. Sensitive URL parameters may leak to third parties.",
+    "evidence": "Header 'referrer-policy' not found in response"
+  },
+  {
+    "vuln_type": "Missing Security Header",
+    "severity": "low",
+    "description": "Permissions-Policy missing. Browser features (camera, mic) are not restricted.",
+    "evidence": "Header 'permissions-policy' not found in response"
+  }
+]

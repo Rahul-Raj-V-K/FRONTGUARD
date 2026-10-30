@@ -1,0 +1,195 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document http://www.reportlab.com
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nvd.nist.gov/vuln/detail/CVE-2020-6519)
+>> /Border [ 0 0 0 ] /Rect [ 164.7402 598.5861 218.5152 608.0861 ] /Subtype /Link /Type /Annot
+>>
+endobj
+5 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
+>> /Border [ 0 0 0 ] /Rect [ 456.7087 599.7111 539.7917 607.7111 ] /Subtype /Link /Type /Annot
+>>
+endobj
+6 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nvd.nist.gov/vuln/detail/CVE-2017-15095)
+>> /Border [ 0 0 0 ] /Rect [ 164.7402 535.5861 222.6852 545.0861 ] /Subtype /Link /Type /Annot
+>>
+endobj
+7 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options)
+>> /Border [ 0 0 0 ] /Rect [ 456.7087 536.7111 539.7917 544.7111 ] /Subtype /Link /Type /Annot
+>>
+endobj
+8 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nvd.nist.gov/vuln/detail/CVE-2019-11358)
+>> /Border [ 0 0 0 ] /Rect [ 164.7402 482.0861 222.6852 491.5861 ] /Subtype /Link /Type /Annot
+>>
+endobj
+9 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options)
+>> /Border [ 0 0 0 ] /Rect [ 456.7087 483.2111 539.7917 491.2111 ] /Subtype /Link /Type /Annot
+>>
+endobj
+10 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nvd.nist.gov/vuln/detail/CVE-2016-2183)
+>> /Border [ 0 0 0 ] /Rect [ 164.7402 419.0861 218.5152 428.5861 ] /Subtype /Link /Type /Annot
+>>
+endobj
+11 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security)
+>> /Border [ 0 0 0 ] /Rect [ 456.7087 420.2111 539.7917 428.2111 ] /Subtype /Link /Type /Annot
+>>
+endobj
+12 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nvd.nist.gov/vuln/detail/CVE-2018-1000007)
+>> /Border [ 0 0 0 ] /Rect [ 164.7402 356.0861 222.6852 365.5861 ] /Subtype /Link /Type /Annot
+>>
+endobj
+13 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nvd.nist.gov/vuln/detail/CVE-2018-1000007)
+>> /Border [ 0 0 0 ] /Rect [ 164.7402 346.5861 173.0802 356.0861 ] /Subtype /Link /Type /Annot
+>>
+endobj
+14 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy)
+>> /Border [ 0 0 0 ] /Rect [ 456.7087 357.2111 539.7917 365.2111 ] /Subtype /Link /Type /Annot
+>>
+endobj
+15 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nvd.nist.gov/vuln/detail/CVE-2021-30547)
+>> /Border [ 0 0 0 ] /Rect [ 164.7402 312.0861 222.6852 321.5861 ] /Subtype /Link /Type /Annot
+>>
+endobj
+16 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy)
+>> /Border [ 0 0 0 ] /Rect [ 456.7087 313.2111 539.7917 321.2111 ] /Subtype /Link /Type /Annot
+>>
+endobj
+17 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
+>> /Border [ 0 0 0 ] /Rect [ 164.7402 249.0861 222.6852 258.5861 ] /Subtype /Link /Type /Annot
+>>
+endobj
+18 0 obj
+<<
+/A <<
+/S /URI /Type /Action /URI (https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server)
+>> /Border [ 0 0 0 ] /Rect [ 456.7087 250.2111 545.9212 258.2111 ] /Subtype /Link /Type /Annot
+>>
+endobj
+19 0 obj
+<<
+/Annots [ 4 0 R 5 0 R 6 0 R 7 0 R 8 0 R 9 0 R 10 0 R 11 0 R 12 0 R 13 0 R 
+  14 0 R 15 0 R 16 0 R 17 0 R 18 0 R ] /Contents 23 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 22 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 
+  /Trans <<
+
+>> /Type /Page
+>>
+endobj
+20 0 obj
+<<
+/PageMode /UseNone /Pages 22 0 R /Type /Catalog
+>>
+endobj
+21 0 obj
+<<
+/Author (\(anonymous\)) /CreationDate (D:20261028225232-05'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20261028225232-05'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+  /Subject (\(unspecified\)) /Title (\(anonymous\)) /Trapped /False
+>>
+endobj
+22 0 obj
+<<
+/Count 1 /Kids [ 19 0 R ] /Type /Pages
+>>
+endobj
+23 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 3937
+>>
+stream
+Gb!;ggN)%.&q0LUFO`KAZYLbpPB>>=-k_^tCJ0[UHS1R"RY#A$8>JT#G!'-H"n3]cf$1X8eo@_VO9!Z.qXd'4cldi>"#7Qc3P`6,hS(@&-j3Hk*,u6Z_$c:;*gLjR0Spd#R1$HrLgk6h1dCh_KWoD8aoPoe'3>5ZP1s)*G(#ST#0oM2JqVAhYW.D3_=V))\j`^$e7,Zp9-4J*i0IgXk^V\1FWgtK6842(mjSf[>*-=Lc7e%dbDXic\CV`0]FfC@^`/i*r36KFhgurcf]uh%r8>&V+nu.kImKuZdJ!_[H0<(B:quXSUX)H&gCq@Wif6BWLpBgW?(jgQcKLslRR,X'`>"DQ0QSZca]qF`+I`ue?-'0a\UOP]INm8I2Ve];1N+7Tcd#=:@O`s]/SYBm:Tuf%$nd.gUJ?:;Y-XYLg>Wr0;A.gIcg0(0*SOKfHA#Om$LRt9X'WDu6^an'.@c\bL%BD/nnRS("f)<1$Ab+B8'7q\<,8t3b&VA]6'trY!k`'L8E6MuW%_9s)`t>OF>HtlPC-:CMu;Z'>P0S<04kP[l$T7J.ODA@Ric1^UH&8ecI9G9c.$?U$6*tdP,1R5fTP!>(`1hI!+BbTiU/AmU]99tN;W3q2p.@Mh#e']jlu,,9u'!.j1G!;LjZ0c$0I%Q6l@2#*s8bsOqJ@E,Ke\WboU?XkNOOX*oJeKB42CM8\SEB[FfU'CAMY_Cn;m8f[*]RM@)3AmouS'7Qu4af^Mal':%\"JDnuPbKjDBn%=#T]!mm5J2:3\Um#nd?9ddG!.,UaC3"4>E[=pc5W4[e3%s7s7^k0b]aJm=JSl+G*qD:GJ&=elEMh))NG:N7??\=h%PT]P=d\CB1l_u$FsFnMVHnR6.t1Bp/.#r#W9>RbUN!)s9r"UDSbR:pi/]*n]+Wj.+GU9gE^46q?nhFrKEU)^bK#"@J-ZBl0K'*Er>r/T2ID_&=u@?[K,dBZ>6&]KlX14Djb28ab;YFeD1BH;,D4-^!L6Z9M^t`?=j9=_'e44&AR4(R1rW.M;Brc_H)QTZY16E28@kXCY@"=JDCY!p]i]W`B$XS[.jJ8P$o9GEr%*h/f6gjaB@%NC]tb^"J=OEq+?5.;?FTB_i63;;L4f7"LPo#2Q]DT5Q@>;-PjXJuc7YI*]*i8\`Z-+lQ9m?l0@D+IE)X)DObHB@8@&A<(#<JAnSenF14_EQVV/W[H4oDg/Br)h"UiSkZ-(H`$ffn'L]cVD<>/GC#EW5cXS/.W2JjDiqh)UIpb7/Z7BmSc@XD8mgMTl)(J^qpQnl2aVj,?$_Ug##.Q<%EiG_&H&S;t#1dc6<(/TjdJ4]gP;O]KcQb&^6-*GuWKk.=^A\EE(9RYn-,[;nDcWh`o/`b&e<FB7(VPNV:1/rIp-55J*OgMiq;QFqWGM9GYhc+B<VlL=MGC*hT#U_-sR[@le6gf\8Det`A%_t1jSPU;Q>;Shh9@5?$\cIg2m-9GC&58bg;f+&9C;JpFOWZrG6_5I,F*Ti?<#/fZZab71i*inDj!N8FNoN1H&_"Aa_!c2b,;?*:qp_J\&rbL=2.sVGnJK8C\dTR[PmV:H(kS>@G9\tHPBa^K_MO0jiNVLQ5?4+D+pFlao&gdtPR2p+-qH!8_?Rq/02.VXcm'pc6$DW*<==qa.JjebEk#Wh$9pFPZS3#tRH]iflN2fo@ooj*)miM!4[;Z@<G&(Wgb%+jo4Mt`s")Ie34Xc`[1G5[D!BrO1s]$f'IkQ5HH!88W`[h*f4PGbP.,F#Tej@(:TEoXC&6)/[bnlK\9+a7["(gb[ooFPE:j4MNIkDHG:Gt,(ne!FDjO\8WMoA"$,Vi4]b3)2gS0/JCZ,J.QLdsf7%:PP0u]Fm`8/>:jZ58g2Wm>A6mSH@[ONC<O/p][>q`(?%[u#k3]7V9K1/DmWB&Z\dNV4Y.a!KgMfO$"H6Zg5P6+><lp3'PZeXm^ltMcV^7*&u17k&bSmA-7eD=Sq`DI6)22'TG<VWVS^oF-sdU?C0P$C?qAauLOE]SJlRmeekL@jaA'bsc@7AVLp;:G#XAmV,nW6T9)<]sOh85u@n939_qF+$mh:*^iaA(+il403aU"AN_:c"%^"3bGB=l;#UPL!%b)r@=Ja6Bl*6DcL7P+LJ]ZHE2b6(*9;Jk##mR](;srMZ6-erFSd1E3?:LgeN+qJ&7]Dg3V3R\IWb+).-k9OF1aeQTpfiM/<iU?*OWCibFg+V0-h`5TE13j3tC!Z3i#'!"q"L%&+JR-=0KX5^XNW8L/;F.sEjpk4S\2Z`RK38$`G%[S?5P>WGggr+`o(E#Mb=I74KkDt"^AbGBO?4nFCQs+<NqL,=N29r@HgNfcsWL.S33,0b.a)[ERq)kZRdJHZ"G'Zf(]6%J=d"GjJ)rSt'A2lh,sMMK.oQuM:]Y&E#RP*urOMU*V=.UEK7\eZG_34imeo(?18+Ye#U?7@T]a1F8b@RR[<A*kH)E51APauq:R8CBVWVpbiVB`d70[^uF)mm2P)BM/+EBi&^U]a>\=:SpFpq*.E&:^.S6ZO+<-fP^iLK5ffDEgkPi(fqB;^5f.\8;e+9m:J`FXB5*]ibJHbj6EI\^>)ZZF_\g!,mB6#J-?CtC<4;@>hh.9Rton&n65dG&]#a4p_`!9Rb^`gq"C_[cGMW`:!DC?YfP<F%4<id1M$X\IAi@>m"_E4_HmIiMPjB#?6;Kir3oL8VY>9jQ+_S:&`.oeecCD96M.Kh8rHk].rJhhU->SmGges;De)T01i4U8a!)A\"qM_jmm3]EV!%2c.Il_G.9kgqJ4nQsMcolVUDeZ`]8a?NTLbD2N$ZTC=aV5;f):S#X=-a5]R$?Jn0GDV0^hAn`\r<;U6Mi,d[!ZnZMD6<g'aI`Pik)03TP2)j(8f=?otP;^8AhX=R\Jpd,#=?<t;'ZKQui[0(XRt-56L%S?**he5GfCFP*aK)G*LfLtY+;[!+S/ASZWjB,g2L_o<)qG!pE.6<(pYm6d3oMH$bQ,9(l5X)sYnBlD$'Kl`N5a"WRL/7%&,M(6hZdc.,-gKZ%MXM%38='*a3p\42-SKBa2IjNLPrH,&EQW?SIcB<W,RB,3jF"PM=A>EiM@eo6p7'lN/17a,'P-1,jL\0-d)X!@QZ#<1a#Ke\`:O0'+*^A_giU(*:C!K=,aMT8UikH1d%;]cDmj_!DQ*h,p1bY-@C(=8QI.u;R4CmsI,"eeY.T*&:@D4GVFFSdY/[EkGLu56`CHYNX+c4Th=4.UbGL&+cVW*=m`i:#`A\'-o9m#GjP</HA>sq7779EdJ8sZ]1d1i&q]lpZ+dDU#O,Hk*P^8Qra.UK1*4?&i-Y%@30AKZng:JD%6rNMe)*RYd6dcJ_@X1Z_42!%GtA5c6W5csa\LLiInXG!H'D]\37NObeu]*N3Ch39unCsl:-eN(qI"F?u[2[HLihtQ&-pTcmKNVrAJo]7lIe:$MPqLS+K+PD%1:5f!';p\2#Mc>$^BsPC>n>4Uh9_e2M0gr?MDq`IqX";I9TQfY^a3Yp"=]a`P6QRV)QMYV4ASRs&+qA7i#Rd3gs.n0-qJ)D3:fJA)hHA2"#L7WB;BWuUfSj)'2ANs7;J@Xo_\LVIM7-EUY&#IKb6&o3j!CA`DFBI=>$@-0fVLOthtp_%HGd)\;nkC"8f+KB_K=^[Q),52X?<(&p_;S=A!8AGGHH8G=QM69mM$f]UlaFKP>GU?.Ua4\<3#re%"94XCIG$;W,ISn@rr%$*+JNSBriXc()KhR<b/X&[mea-Jug)KXPE4dE^-?Vp!t@a.^"n3l)Io<D/Iin>PktnCmd,@Uhpe*V0>Dc3#MJ)_!@IOX83%dTR1EkiDb#$Hc&]&^//Q3=nD8EGX!06pEKAl*;R?rI5psjj5FD(S\f>bg0AgoK!obe"X:BlY=_"iY8%Us_4jM-e`5=lREWm!1DWFkEJRaoKnD?"[!>Zs*$"nf"Wbj,~>endstream
+endobj
+xref
+0 24
+0000000000 65535 f 
+0000000073 00000 n 
+0000000114 00000 n 
+0000000221 00000 n 
+0000000333 00000 n 
+0000000531 00000 n 
+0000000736 00000 n 
+0000000935 00000 n 
+0000001160 00000 n 
+0000001359 00000 n 
+0000001591 00000 n 
+0000001790 00000 n 
+0000002026 00000 n 
+0000002228 00000 n 
+0000002430 00000 n 
+0000002656 00000 n 
+0000002856 00000 n 
+0000003085 00000 n 
+0000003285 00000 n 
+0000003587 00000 n 
+0000003907 00000 n 
+0000003977 00000 n 
+0000004261 00000 n 
+0000004322 00000 n 
+trailer
+<<
+/ID 
+[<39ce9f1f6dd79a136dec21f3153c7737><39ce9f1f6dd79a136dec21f3153c7737>]
+% ReportLab generated PDF document -- digest (http://www.reportlab.com)
+
+/Info 21 0 R
+/Root 20 0 R
+/Size 24
+>>
+startxref
+8351
+%%EOF

@@ -1,0 +1,48 @@
+{
+  "findings": [
+    {
+      "vuln_type": "Missing Security Header: content-security-policy",
+      "severity": "high",
+      "description": "Content-Security-Policy (CSP) header is missing. This leaves the app vulnerable to XSS and data injection attacks.",
+      "evidence": "Header 'content-security-policy' was not returned by the server."
+    },
+    {
+      "vuln_type": "Missing Security Header: x-frame-options",
+      "severity": "medium",
+      "description": "X-Frame-Options is missing. The page may be framed by external sites, exposing users to clickjacking attacks.",
+      "evidence": "Header 'x-frame-options' was not returned by the server."
+    },
+    {
+      "vuln_type": "Missing Security Header: x-content-type-options",
+      "severity": "low",
+      "description": "X-Content-Type-Options: nosniff is not set. Browsers may MIME-sniff response bodies incorrectly.",
+      "evidence": "Header 'x-content-type-options' was not returned by the server."
+    },
+    {
+      "vuln_type": "Missing Security Header: strict-transport-security",
+      "severity": "high",
+      "description": "HSTS (HTTP Strict Transport Security) header is missing. HTTPS is not strictly enforced, enabling downgrade and SSL-stripping attacks.",
+      "evidence": "Header 'strict-transport-security' was not returned by the server."
+    },
+    {
+      "vuln_type": "Missing Security Header: referrer-policy",
+      "severity": "low",
+      "description": "Referrer-Policy header is missing. Sensitive URL paths/parameters may leak to third parties in HTTP Referer headers.",
+      "evidence": "Header 'referrer-policy' was not returned by the server."
+    },
+    {
+      "vuln_type": "Missing Security Header: permissions-policy",
+      "severity": "low",
+      "description": "Permissions-Policy header is missing. Sensitive browser features (camera, microphone, geolocation) are not restricted.",
+      "evidence": "Header 'permissions-policy' was not returned by the server."
+    },
+    {
+      "vuln_type": "Information Disclosure: server",
+      "severity": "low",
+      "description": "Server header reveals web server software and banner information.",
+      "evidence": "server: cloudflare"
+    }
+  ],
+  "components": [],
+  "target_ip": "104.20.23.154"
+}

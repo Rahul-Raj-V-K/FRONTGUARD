@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebVulnScanner — Technical Security Audit & Vulnerability Assessment</title>
+  <meta name="description" content="Passive cybersecurity assessment platform. Evaluates HTTP response security headers, Retire.js client-side CVEs, DOM credentials, and network telemetry." />
+
+  <!-- Bootstrap 5.3.3 CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bs-body-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --bs-body-bg: #090a0d;
+      --bs-body-color: #e2e8f0;
+      --bs-card-bg: #111318;
+      --bs-border-color: #232733;
+    }
+
+    body {
+      font-family: var(--bs-body-font-family);
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-monospace {
+      font-family: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    }
+
+    /* Utilitarian Neutral Cards — No decorative background gradients */
+    .neutral-card {
+      background: var(--bs-card-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 6px;
+    }
+
+    .site-header {
+      background: #0d0f14;
+      border-bottom: 1px solid var(--bs-border-color);
+    }
+
+    .text-input-group {
+      background: #090a0d;
+      border: 1px solid var(--bs-border-color);
+      border-radius: 6px;
+      padding: 4px;
+    }
+
+    .text-input-field {
+      background: transparent;
+      border: none;
+      color: #f8fafc;
+      box-shadow: none !important;
+    }
+    .text-input-field:focus {
+      background: transparent;
+      color: #ffffff;
+    }
+
+    .stat-card {
+      background: var(--bs-card-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 6px;
+      padding: 18px 22px;
+    }
+
+    .table-audit {
+      border-color: var(--bs-border-color);
+    }
+    .table-audit th {
+      background-color: #151821 !important;
+      color: #94a3b8;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--bs-border-color);
+    }
+    .table-audit td {
+      background-color: #111318;
+      border-color: var(--bs-border-color);
+    }
+    .table-audit tr:hover td {
+      background-color: #171a23;
+    }
+
+    /* Dedicated Vulnerability Status Colors */
+    .badge-critical, .badge-high {
+      background-color: #dc2626 !important;
+      color: #ffffff !important;
+    }
+    .badge-medium {
+      background-color: #ea580c !important;
+      color: #ffffff !important;
+    }
+    .badge-neutral {
+      background-color: #1e2330 !important;
+      color: #94a3b8 !important;
+      border: 1px solid #2e3547;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Neutral Top Header Navigation -->
+  <header class="site-header py-3">
+    <div class="container-fluid px-lg-5">
+      <div class="d-flex align-items-center justify-content-between">
+        <a href="/" class="d-flex align-items-center gap-2 text-decoration-none text-light">
+          <span class="fs-4">🛡️</span>
+          <span class="fw-bold fs-5 tracking-tight">WebVulnScanner</span>
+          <span class="badge bg-secondary-subtle text-secondary font-monospace border border-secondary-subtle ms-2" style="font-size: 0.7rem;">
+            AUDIT ENGINE v1.0
+          </span>
+        </a>
+
+        <div class="d-flex align-items-center gap-2 font-monospace small text-secondary">
+          <span class="badge bg-dark border text-secondary">RESTRICTED // INTERNAL IT AUDIT</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container-fluid px-lg-5 py-4">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-dark border-secondary d-flex align-items-center gap-2 font-monospace small mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle text-warning"></i>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Scan Input Card (Calm Neutral Base with Single Accent Blue on Action Button & Highlight Phrase) -->
+    <section class="neutral-card p-4 p-lg-5 mb-4">
+      <div class="row align-items-center">
+        <div class="col-12">
+          <!-- One highlighted key phrase in the main dashboard headline using accent blue -->
+          <h1 class="h4 fw-bold text-light mb-3 lh-base">
+            Automated vulnerability detection and compliance assessment with <span class="text-primary fw-bold">deterministic rule-based verification</span>.
+          </h1>
+          <p class="text-secondary small mb-4 lh-base" style="max-width: 950px;">
+            Engineered for system administrators, security officers, and development teams requiring reproducible, verifiable assessment records. Evaluates HTTP response security headers, cross-references client-side JavaScript packages against Retire.js CVE databases, inspects inline scripts for credential exposures, and assesses target host IP telemetry.
+          </p>
+
+          <form id="scan-form" action="/scan" method="POST">
+            <div class="text-input-group d-flex flex-column flex-md-row gap-2">
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0 text-secondary">
+                  <i class="bi bi-globe2"></i>
+                </span>
+                <input
+                  id="target-url-input"
+                  type="text"
+                  name="target_url"
+                  class="form-control text-input-field font-monospace small"
+                  placeholder="https://target.corp.internal or 192.168.1.1"
+                  required
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+              </div>
+
+              <!-- Main 'Initiate Scan' Action Button (Single Reserved Bright Accent Blue) -->
+              <button id="scan-btn" type="submit" class="btn btn-primary font-monospace fw-semibold px-4 text-nowrap">
+                <span class="btn-text"><i class="bi bi-shield-check me-1"></i> Initiate Scan</span>
+              </button>
+            </div>
+            <div class="font-monospace text-secondary mt-2" style="font-size: 0.72rem;">
+              Strictly non-destructive inspection. Target endpoints are probed passively via TLS/HTTPS without intrusive exploits.
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Calm Neutral Stats Grid -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="stat-card">
+          <div class="text-secondary font-monospace small text-uppercase fw-semibold mb-1">Total Audits Executed</div>
+          <div class="h3 fw-bold text-light font-monospace mb-0">{{ scans | length }}</div>
+          <div class="text-secondary font-monospace mt-1" style="font-size: 0.72rem;">Recorded inspection telemetry</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="stat-card">
+          <div class="text-secondary font-monospace small text-uppercase fw-semibold mb-1">Critical & High Exposures</div>
+          <!-- Red strictly reserved for Critical/High -->
+          <div class="h3 fw-bold text-danger font-monospace mb-0">
+            {{ scans | selectattr('risk_level', 'in', ['high', 'critical']) | list | length }}
+          </div>
+          <div class="text-secondary font-monospace mt-1" style="font-size: 0.72rem;">High-priority policy exceptions</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="stat-card">
+          <div class="text-secondary font-monospace small text-uppercase fw-semibold mb-1">Compliant / Hardened Targets</div>
+          <div class="h3 fw-bold text-secondary font-monospace mb-0">
+            {{ scans | selectattr('risk_level', 'in', ['low', 'info']) | list | length }}
+          </div>
+          <div class="text-secondary font-monospace mt-1" style="font-size: 0.72rem;">Baseline policy compliance verified</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit Ledger & Target History Table -->
+    <section class="neutral-card">
+      <div class="card-header bg-dark border-bottom border-secondary-subtle py-3 px-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="h6 mb-0 text-light font-monospace fw-bold text-uppercase">
+            <i class="bi bi-journal-text text-secondary me-2"></i>Audit Ledger & Target History
+          </h2>
+          <div class="text-secondary font-monospace mt-1" style="font-size: 0.72rem;">
+            Verifiable records of completed vulnerability assessments and audit artifacts.
+          </div>
+        </div>
+        <span class="badge bg-secondary font-monospace">
+          {{ scans | length }} Records
+        </span>
+      </div>
+
+      <div class="card-body p-0">
+        {% if scans %}
+          <div class="table-responsive">
+            <table class="table table-audit mb-0 font-monospace small align-middle">
+              <thead>
+                <tr>
+                  <th style="width: 8%;">Audit ID</th>
+                  <th style="width: 28%;">Target Endpoint</th>
+                  <th style="width: 16%;">Resolved IPv4</th>
+                  <th style="width: 16%;">Timestamp (UTC)</th>
+                  <th style="width: 12%; text-align: center;">Policy Findings</th>
+                  <th style="width: 10%;">Risk Posture</th>
+                  <th style="width: 10%; text-align: right;">Artifacts</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for scan in scans %}
+                  {% set r_level = scan.risk_level | lower %}
+                  <tr>
+                    <td class="text-secondary">#{{ scan.id }}</td>
+                    <td class="fw-semibold text-light text-truncate" style="max-width: 320px;" title="{{ scan.target_url }}">
+                      {{ scan.target_url }}
+                    </td>
+                    <td class="text-secondary">
+                      {{ scan.target_ip if scan.target_ip and scan.target_ip != 'None' else 'UNRESOLVED' }}
+                    </td>
+                    <td class="text-secondary">
+                      {{ scan.scan_date[:19].replace('T', ' ') }}
+                    </td>
+                    <td style="text-align: center;">
+                      <span class="badge bg-dark border border-secondary text-light px-2 py-1">
+                        {{ scan.findings_count }}
+                      </span>
+                    </td>
+                    <td>
+                      <!-- High-visibility status colors: RED strictly for Critical/High, ORANGE for Medium -->
+                      {% if r_level in ['critical', 'high'] %}
+                        <span class="badge badge-critical text-uppercase fw-bold px-2 py-1">
+                          {{ scan.risk_level }}
+                        </span>
+                      {% elif r_level == 'medium' %}
+                        <span class="badge badge-medium text-uppercase fw-bold px-2 py-1">
+                          Medium
+                        </span>
+                      {% else %}
+                        <span class="badge badge-neutral text-uppercase fw-medium px-2 py-1">
+                          {{ scan.risk_level }}
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                      <div class="d-flex align-items-center justify-content-end gap-1">
+                        <a href="/result/{{ scan.id }}" class="btn btn-outline-secondary btn-sm font-monospace" style="font-size: 0.72rem;">
+                          Inspect
+                        </a>
+                        <a href="/report/{{ scan.id }}/pdf" class="btn btn-outline-secondary btn-sm font-monospace" style="font-size: 0.72rem;">
+                          PDF
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="py-5 text-center text-secondary font-monospace">
+            <i class="bi bi-shield-check display-4 mb-2 text-secondary"></i>
+            <div class="fw-semibold">No historical audits recorded</div>
+            <div class="small mt-1 text-secondary" style="font-size: 0.78rem;">Submit a target endpoint above to generate an audit ledger record.</div>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Technical Audit Footer -->
+  <footer class="py-4 border-top border-secondary-subtle text-center text-secondary font-monospace" style="font-size: 0.75rem;">
+    <div class="container-fluid px-lg-5">
+      <div>RESTRICTED // INTERNAL IT SECURITY AUDIT PLATFORM &mdash; WEBVULNSCANNER ENTERPRISE</div>
+      <div class="text-secondary mt-1" style="font-size: 0.7rem;">
+        Deterministic Vulnerability Verification Engine &bull; Strictly for Authorized System Administrators and Security Personnel
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"
+  ></script>
+
+  <script>
+    document.getElementById('scan-form').addEventListener('submit', function () {
+      const btn = document.getElementById('scan-btn');
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Auditing Target Endpoint…';
+      btn.disabled = true;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Audit Report #{{ scan.id }} — {{ scan.target_url }}</title>
+  <meta name="description" content="Technical vulnerability audit report for {{ scan.target_url }}." />
+
+  <!-- Bootstrap 5.3.3 CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bs-body-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --bs-body-bg: #090a0d;
+      --bs-body-color: #e2e8f0;
+      --bs-card-bg: #111318;
+      --bs-border-color: #232733;
+    }
+
+    body {
+      font-family: var(--bs-body-font-family);
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-monospace {
+      font-family: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    }
+
+    /* Utilitarian Neutral Cards — No decorative background colors */
+    .neutral-card {
+      background: var(--bs-card-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 6px;
+    }
+
+    .audit-header-bar {
+      background: #0d0f14;
+      border-bottom: 1px solid var(--bs-border-color);
+    }
+
+    .section-banner {
+      background: #111318;
+      border: 1px solid var(--bs-border-color);
+      border-radius: 6px 6px 0 0;
+    }
+
+    /* Clean Audit Tables with Dark Charcoal Borders */
+    .table-audit {
+      border-color: var(--bs-border-color);
+    }
+    .table-audit th {
+      background-color: #151821 !important;
+      color: #94a3b8;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--bs-border-color);
+    }
+    .table-audit td {
+      background-color: #111318;
+      border-color: var(--bs-border-color);
+    }
+    .table-audit tr:hover td {
+      background-color: #171a23;
+    }
+
+    .meta-table td, .meta-table th {
+      padding: 9px 14px;
+      border-color: var(--bs-border-color);
+      background-color: #111318;
+    }
+
+    /* CVSS Modules & Strict Status Colors */
+    .cvss-module {
+      min-width: 125px;
+      text-align: center;
+      border-radius: 6px;
+      padding: 10px 14px;
+      flex-shrink: 0;
+    }
+
+    .cvss-score-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .cvss-sub {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* CVSS Module Status Colors: Red strictly for Critical/High, Orange for Medium */
+    .cvss-danger {
+      background-color: #dc2626 !important;
+      color: #ffffff !important;
+    }
+    .cvss-warning {
+      background-color: #ea580c !important;
+      color: #ffffff !important;
+    }
+    .cvss-neutral {
+      background-color: #181c25 !important;
+      color: #94a3b8 !important;
+      border: 1px solid #282f40;
+    }
+
+    /* Severity Accent Left Borders: ONLY Red for Critical/High and Orange for Medium */
+    .vuln-card {
+      background: var(--bs-card-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 6px;
+    }
+    .vuln-card.border-critical, .vuln-card.border-high {
+      border-left: 5px solid #dc2626 !important;
+    }
+    .vuln-card.border-medium {
+      border-left: 5px solid #ea580c !important;
+    }
+    .vuln-card.border-low, .vuln-card.border-info {
+      border-left: 1px solid var(--bs-border-color) !important;
+    }
+
+    /* Utilitarian Code & Remediation Callouts */
+    .remediation-box {
+      background: #0d0f14;
+      border: 1px solid var(--bs-border-color);
+      border-radius: 6px;
+    }
+
+    .evidence-block {
+      background: #07080a;
+      border: 1px solid #1e222b;
+      border-radius: 6px;
+      color: #cbd5e1;
+    }
+
+    .cve-pill {
+      background: #181c25;
+      border: 1px solid #282f40;
+      color: #f8fafc;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Neutral Audit Header Bar -->
+  <header class="audit-header-bar py-3">
+    <div class="container-fluid px-lg-5">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <span class="fs-4">🛡️</span>
+          <div>
+            <div class="font-monospace small text-secondary text-uppercase fw-semibold tracking-wider">
+              Internal IT Audit & Vulnerability Assessment
+            </div>
+            <div class="fw-bold fs-5 text-light">
+              Audit Report Reference: <span class="font-monospace text-light">#AUDIT-{{ scan.id }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Neutral Action Buttons (No Accent Blue) -->
+        <div class="d-flex align-items-center gap-2">
+          <a href="/" class="btn btn-outline-secondary btn-sm font-monospace">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard
+          </a>
+          <a id="download-pdf-btn" href="/report/{{ scan.id }}/pdf" class="btn btn-outline-secondary btn-sm font-monospace">
+            <i class="bi bi-file-earmark-pdf me-1"></i> Export Official PDF Report
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container-fluid px-lg-5 py-4">
+
+    <!-- Target Evaluation Telemetry Dossier -->
+    <section class="neutral-card mb-4">
+      <div class="card-header bg-dark border-bottom border-secondary-subtle py-2 d-flex justify-content-between align-items-center">
+        <span class="font-monospace small fw-bold text-uppercase text-secondary">
+          <i class="bi bi-cpu me-1"></i> Target Evaluation Telemetry
+        </span>
+        <span class="badge bg-dark border border-secondary text-secondary font-monospace" style="font-size: 0.7rem;">
+          CLASSIFICATION: INTERNAL IT AUDIT
+        </span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table meta-table mb-0 font-monospace small">
+            <tbody>
+              <tr>
+                <th class="text-secondary fw-semibold text-uppercase bg-dark-subtle" style="width: 18%;">Target Host / FQDN</th>
+                <td class="fw-bold text-light" style="width: 32%;">
+                  <i class="bi bi-globe2 text-secondary me-1"></i> {{ scan.target_url }}
+                </td>
+                <th class="text-secondary fw-semibold text-uppercase bg-dark-subtle" style="width: 18%;">Overall Risk Level</th>
+                <td style="width: 32%;">
+                  {% set level = scan.risk_level | lower %}
+                  {% if level in ['critical', 'high'] %}
+                    <span class="badge bg-danger fs-6 text-uppercase px-3 py-1 font-monospace fw-bold">
+                      {{ scan.risk_level | upper }} RISK
+                    </span>
+                  {% elif level == 'medium' %}
+                    <span class="badge bg-warning text-dark fs-6 text-uppercase px-3 py-1 font-monospace fw-bold">
+                      MEDIUM RISK
+                    </span>
+                  {% else %}
+                    <span class="badge bg-secondary fs-6 text-uppercase px-3 py-1 font-monospace fw-medium">
+                      {{ scan.risk_level | upper }} RISK
+                    </span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th class="text-secondary fw-semibold text-uppercase bg-dark-subtle">Resolved Target IPv4</th>
+                <td class="text-light">
+                  <span class="badge bg-dark border border-secondary text-light">{{ scan.target_ip if scan.target_ip and scan.target_ip != 'None' else 'UNRESOLVED' }}</span>
+                </td>
+                <th class="text-secondary fw-semibold text-uppercase bg-dark-subtle">Total Violations Detected</th>
+                <td class="text-light">
+                  <span class="badge bg-dark border border-secondary text-light fs-6 px-2 py-0 fw-bold">{{ scan.findings_count }}</span> Policy Exceptions
+                </td>
+              </tr>
+              <tr>
+                <th class="text-secondary fw-semibold text-uppercase bg-dark-subtle">Audit Timestamp</th>
+                <td class="text-secondary">
+                  <i class="bi bi-clock me-1"></i> {{ scan.scan_date[:19].replace('T', ' ') }} UTC
+                </td>
+                <th class="text-secondary fw-semibold text-uppercase bg-dark-subtle">Audit Methodology</th>
+                <td class="text-secondary">
+                  Deterministic Header Benchmark + Retire.js SCA Analysis
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jinja Safe List Resolvers for Category Dictionaries -->
+    {% set headers_list = vulnerabilities.headers if (vulnerabilities is defined and vulnerabilities.headers is defined) else [] %}
+    {% set js_list = vulnerabilities.javascript if (vulnerabilities is defined and vulnerabilities.javascript is defined) else [] %}
+    {% set total_findings_count = (headers_list | length) + (js_list | length) %}
+
+    <!-- Severity Filter Bar & Category Quick Counters (Neutral Styling) -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="font-monospace small text-secondary text-uppercase fw-bold">Filter By Severity:</span>
+        <div class="btn-group btn-group-sm font-monospace" role="group" id="filter-btn-group">
+          <button type="button" class="btn btn-secondary active filter-btn" data-filter="all">
+            All ({{ total_findings_count }})
+          </button>
+          {% for sev in ['critical', 'high', 'medium', 'low', 'info'] %}
+            {% set cnt_h = headers_list | selectattr('severity', 'eq', sev) | list | length %}
+            {% set cnt_j = js_list | selectattr('severity', 'eq', sev) | list | length %}
+            {% set cnt = cnt_h + cnt_j %}
+            {% if cnt > 0 %}
+            <button type="button" class="btn btn-outline-secondary filter-btn text-capitalize" data-filter="{{ sev }}">
+              {{ sev }} ({{ cnt }})
+            </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3 font-monospace small">
+        <a href="#section-headers" class="text-decoration-none text-secondary">
+          <i class="bi bi-arrow-down-short"></i> Headers ({{ headers_list | length }})
+        </a>
+        <span class="text-secondary">&bull;</span>
+        <a href="#section-javascript" class="text-decoration-none text-secondary">
+          <i class="bi bi-arrow-down-short"></i> JavaScript ({{ js_list | length }})
+        </a>
+        <span class="text-secondary">&bull;</span>
+        <span class="text-secondary">Showing <span id="visible-count" class="fw-bold text-light">{{ total_findings_count }}</span> of {{ total_findings_count }} Findings</span>
+      </div>
+    </div>
+
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 1: HTTP Header Misconfigurations                               -->
+    <!-- ======================================================================= -->
+    <section id="section-headers" class="mb-5">
+      <div class="section-banner p-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-dark border border-secondary text-secondary font-monospace text-uppercase">SECTION 1</span>
+            <h2 class="h6 mb-0 fw-bold text-light font-monospace text-uppercase">
+              <i class="bi bi-hdd-network text-secondary me-2"></i>HTTP Header Misconfigurations
+            </h2>
+          </div>
+          <div class="text-secondary small font-monospace mt-1" style="font-size: 0.75rem;">
+            Deterministic audit of server-side response headers, transport security, and information disclosure policies.
+          </div>
+        </div>
+        <div>
+          <span class="badge bg-dark border border-secondary text-secondary font-monospace fs-6 px-3 py-1">
+            {{ headers_list | length }} Misconfiguration{{ 's' if headers_list | length != 1 else '' }}
+          </span>
+        </div>
+      </div>
+
+      {% if headers_list %}
+        <!-- Section 1 Summary Table -->
+        <div class="neutral-card rounded-0 border-top-0 mb-4">
+          <div class="table-responsive">
+            <table class="table table-audit mb-0 font-monospace small align-middle">
+              <thead>
+                <tr>
+                  <th style="width: 6%;">#</th>
+                  <th style="width: 32%;">Vulnerability / Policy Violation</th>
+                  <th style="width: 14%;">Reference / CVE</th>
+                  <th style="width: 14%;">CVSS Score</th>
+                  <th style="width: 14%;">Severity</th>
+                  <th style="width: 20%;">Remediation Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for finding in headers_list %}
+                  {% set sev = finding.severity | lower %}
+                  {% set cvss = finding.cvss_score | default(3.0) | float %}
+                  {% set ref_val = finding.ref_id or finding.cve_id %}
+                  <tr>
+                    <td class="text-secondary">HDR-{{ loop.index }}</td>
+                    <td class="fw-bold text-light">{{ finding.vuln_type }}</td>
+                    <td>
+                      {% if ref_val and ref_val.startswith('CWE-') %}
+                        <span class="badge bg-dark border text-light"><span class="text-secondary">Ref:</span> {{ ref_val }}</span>
+                      {% elif ref_val %}
+                        <span class="badge bg-dark border text-light">{{ ref_val }}</span>
+                      {% else %}
+                        <span class="badge bg-dark border text-secondary">CWE-POLICY</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <!-- High-visibility CVSS score: Red strictly for Critical/High, Orange for Medium -->
+                      {% if sev in ['critical', 'high'] or cvss >= 7.0 %}
+                        <span class="fw-bold font-monospace text-danger">
+                          {{ "%.1f"|format(cvss) }} / 10.0
+                        </span>
+                      {% elif sev == 'medium' or cvss >= 4.0 %}
+                        <span class="fw-bold font-monospace text-warning">
+                          {{ "%.1f"|format(cvss) }} / 10.0
+                        </span>
+                      {% else %}
+                        <span class="font-monospace text-secondary">
+                          {{ "%.1f"|format(cvss) }} / 10.0
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if sev in ['critical', 'high'] %}
+                        <span class="badge bg-danger text-uppercase fw-bold">{{ sev }}</span>
+                      {% elif sev == 'medium' %}
+                        <span class="badge bg-warning text-dark text-uppercase fw-bold">MEDIUM</span>
+                      {% else %}
+                        <span class="badge bg-dark border text-secondary text-uppercase">{{ sev }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-secondary text-truncate" style="max-width: 280px;" title="{{ finding.remediation_steps }}">
+                      {{ finding.remediation_steps }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 1 Detailed Findings Grid (Strict Visual Hierarchy) -->
+        <div class="vstack gap-4">
+          {% for finding in headers_list %}
+            {% set sev = finding.severity | lower %}
+            {% set cvss = finding.cvss_score | default(3.0) | float %}
+            {% set active_cve = finding.cve_id if (finding.cve_id and finding.cve_id.startswith('CVE-')) else (finding.cves[0] if (finding.cves and finding.cves[0].startswith('CVE-')) else None) %}
+
+            <article class="vuln-card p-4 border-{{ sev }}" data-severity="{{ sev }}">
+              <!-- 1. MOST VISUALLY DOMINANT: CVSS SCORE & RISK LEVEL (RED for Critical/High, ORANGE for Medium) -->
+              <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 pb-3 border-bottom border-secondary-subtle">
+                <div class="d-flex align-items-center gap-3">
+                  {% if sev in ['critical', 'high'] or cvss >= 7.0 %}
+                    <div class="cvss-module cvss-danger">
+                      <div class="cvss-sub">CVSS v3.1</div>
+                      <div class="cvss-score-val font-monospace">{{ "%.1f"|format(cvss) }}</div>
+                      <div class="cvss-sub mt-1">{{ 'CRITICAL' if (sev == 'critical' or cvss >= 9.0) else 'HIGH' }}</div>
+                    </div>
+                  {% elif sev == 'medium' or cvss >= 4.0 %}
+                    <div class="cvss-module cvss-warning">
+                      <div class="cvss-sub">CVSS v3.1</div>
+                      <div class="cvss-score-val font-monospace">{{ "%.1f"|format(cvss) }}</div>
+                      <div class="cvss-sub mt-1">MEDIUM</div>
+                    </div>
+                  {% else %}
+                    <div class="cvss-module cvss-neutral">
+                      <div class="cvss-sub">CVSS v3.1</div>
+                      <div class="cvss-score-val font-monospace">{{ "%.1f"|format(cvss) }}</div>
+                      <div class="cvss-sub mt-1 text-secondary">LOW / INFO</div>
+                    </div>
+                  {% endif %}
+
+                  <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                      {% if sev in ['critical', 'high'] %}
+                        <span class="badge bg-danger text-uppercase fw-bold font-monospace px-2 py-1">
+                          {{ sev }} RISK
+                        </span>
+                      {% elif sev == 'medium' %}
+                        <span class="badge bg-warning text-dark text-uppercase fw-bold font-monospace px-2 py-1">
+                          MEDIUM RISK
+                        </span>
+                      {% else %}
+                        <span class="badge bg-dark border text-secondary text-uppercase fw-medium font-monospace px-2 py-1">
+                          {{ sev }} RISK
+                        </span>
+                      {% endif %}
+                      <span class="font-monospace text-secondary small">HDR-REF #{{ loop.index }}</span>
+                    </div>
+                    <h3 class="h5 fw-bold text-light mb-0">{{ finding.vuln_type }}</h3>
+                  </div>
+                </div>
+
+                <div class="text-end font-monospace small text-secondary">
+                  <div>Status: <span class="badge bg-danger-subtle text-danger border border-danger-subtle">UNRESOLVED</span></div>
+                  <div class="text-secondary mt-1" style="font-size: 0.72rem;">Scope: HTTP Response Headers</div>
+                </div>
+              </div>
+
+              <!-- 2. BELOW THE SCORE: REF / CVE ID & CLICKABLE LINK (Neutral Buttons) -->
+              <div class="my-3 p-3 bg-dark-subtle rounded border border-secondary-subtle d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-fingerprint text-secondary fs-5"></i>
+                  {% set hdr_ref = finding.ref_id or finding.cve_id %}
+                  {% if hdr_ref and hdr_ref.startswith('CWE-') %}
+                    <span class="text-secondary small fw-bold font-monospace text-uppercase">Reference:</span>
+                    <span class="cve-pill font-monospace"><span class="text-secondary">Reference:</span> {{ hdr_ref }}</span>
+                  {% elif hdr_ref %}
+                    <span class="text-secondary small fw-bold font-monospace text-uppercase">Vulnerability Identifier:</span>
+                    <span class="cve-pill font-monospace">{{ hdr_ref }}</span>
+                  {% elif finding.cves and finding.cves[0] %}
+                    <span class="text-secondary small fw-bold font-monospace text-uppercase">Vulnerability Identifier:</span>
+                    <span class="cve-pill font-monospace">{{ finding.cves[0] }}</span>
+                  {% else %}
+                    <span class="text-secondary small fw-bold font-monospace text-uppercase">Reference:</span>
+                    <span class="cve-pill font-monospace text-secondary">CWE-POLICY-MISCONFIG</span>
+                  {% endif %}
+                </div>
+
+                <!-- Neutral Outline Buttons (No Blue Accent) -->
+                <div>
+                  {% if active_cve %}
+                    <a
+                      href="https://nvd.nist.gov/vuln/detail/{{ active_cve }}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-box-arrow-up-right me-1"></i> NVD Database Record ({{ active_cve }})
+                    </a>
+                  {% elif hdr_ref and hdr_ref.startswith('CWE-') %}
+                    <a
+                      href="https://cwe.mitre.org/data/definitions/{{ hdr_ref.replace('CWE-', '') }}.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-shield-check me-1"></i> MITRE Reference Record ({{ hdr_ref }})
+                    </a>
+                  {% elif finding.reference_link %}
+                    <a
+                      href="{{ finding.reference_link }}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-box-arrow-up-right me-1"></i> Technical Advisory Reference
+                    </a>
+                  {% else %}
+                    <a
+                      href="https://nvd.nist.gov/vuln/search/results?form_type=Basic&results_type=overview&query={{ finding.vuln_type | urlencode }}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-search me-1"></i> Query NIST NVD
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Technical Description & Observation Evidence -->
+              <div class="mb-3">
+                <div class="text-secondary small font-monospace text-uppercase fw-semibold mb-1">
+                  Technical Impact & Observation:
+                </div>
+                <p class="text-body-secondary mb-2 lh-base">
+                  {{ finding.description }}
+                </p>
+
+                {% if finding.evidence %}
+                <div class="evidence-block p-3 font-monospace small">
+                  <div class="text-secondary small fw-bold mb-1">// Observed Target Response Evidence:</div>
+                  <pre class="mb-0 text-break" style="white-space: pre-wrap; color: #cbd5e1;">{{ finding.evidence }}</pre>
+                </div>
+                {% endif %}
+              </div>
+
+              <!-- 3. EXACT REMEDIATION STEPS -->
+              <div class="remediation-box p-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <i class="bi bi-shield-check text-secondary fs-5"></i>
+                  <strong class="text-secondary font-monospace text-uppercase small tracking-wider">
+                    Mandatory Technical Remediation Steps:
+                  </strong>
+                </div>
+                <div class="text-light font-monospace small lh-base">
+                  {{ finding.remediation_steps or finding.remediation or 'Implement appropriate defense-in-depth headers and eliminate insecure configuration parameters.' }}
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Section 1 Empty State -->
+        <div class="neutral-card text-center py-5">
+          <div class="card-body">
+            <i class="bi bi-shield-check text-secondary display-4 mb-3"></i>
+            <h3 class="h6 text-light fw-bold font-monospace">Zero HTTP Header Misconfigurations Detected</h3>
+            <p class="text-secondary font-monospace small max-w-500 mx-auto mb-0" style="font-size: 0.78rem;">
+              All baseline HTTP security response headers conform to baseline security requirements.
+            </p>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 2: Client-Side JavaScript Vulnerabilities                      -->
+    <!-- ======================================================================= -->
+    <section id="section-javascript" class="mb-5">
+      <div class="section-banner p-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-dark border border-secondary text-secondary font-monospace text-uppercase">SECTION 2</span>
+            <h2 class="h6 mb-0 fw-bold text-light font-monospace text-uppercase">
+              <i class="bi bi-filetype-js text-secondary me-2"></i>Client-Side JavaScript Vulnerabilities
+            </h2>
+          </div>
+          <div class="text-secondary small font-monospace mt-1" style="font-size: 0.75rem;">
+            Software Composition Analysis (SCA) of client libraries via Retire.js, DOM-based XSS sinks, and embedded credentials.
+          </div>
+        </div>
+        <div>
+          <span class="badge bg-dark border border-secondary text-secondary font-monospace fs-6 px-3 py-1">
+            {{ js_list | length }} Vulnerabilit{{ 'ies' if js_list | length != 1 else 'y' }}
+          </span>
+        </div>
+      </div>
+
+      {% if js_list %}
+        <!-- Section 2 Summary Table -->
+        <div class="neutral-card rounded-0 border-top-0 mb-4">
+          <div class="table-responsive">
+            <table class="table table-audit mb-0 font-monospace small align-middle">
+              <thead>
+                <tr>
+                  <th style="width: 6%;">#</th>
+                  <th style="width: 32%;">Component / Finding Type</th>
+                  <th style="width: 14%;">Reference / CVE</th>
+                  <th style="width: 14%;">CVSS Score</th>
+                  <th style="width: 14%;">Severity</th>
+                  <th style="width: 20%;">Remediation Summary</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for finding in js_list %}
+                  {% set sev = finding.severity | lower %}
+                  {% set cvss = finding.cvss_score | default(3.0) | float %}
+                  {% set js_ref = finding.ref_id or finding.cve_id %}
+                  <tr>
+                    <td class="text-secondary">JS-{{ loop.index }}</td>
+                    <td class="fw-bold text-light">{{ finding.vuln_type }}</td>
+                    <td>
+                      {% if js_ref and js_ref.startswith('CWE-') %}
+                        <span class="badge bg-dark border text-light"><span class="text-secondary">Ref:</span> {{ js_ref }}</span>
+                      {% elif js_ref %}
+                        <span class="badge bg-dark border text-light">{{ js_ref }}</span>
+                      {% elif finding.cves and finding.cves[0] %}
+                        <span class="badge bg-dark border text-light">{{ finding.cves[0] }}</span>
+                      {% else %}
+                        <span class="badge bg-dark border text-secondary">CWE-CLIENT-JS</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <!-- High-visibility CVSS score: Red strictly for Critical/High, Orange for Medium -->
+                      {% if sev in ['critical', 'high'] or cvss >= 7.0 %}
+                        <span class="fw-bold font-monospace text-danger">
+                          {{ "%.1f"|format(cvss) }} / 10.0
+                        </span>
+                      {% elif sev == 'medium' or cvss >= 4.0 %}
+                        <span class="fw-bold font-monospace text-warning">
+                          {{ "%.1f"|format(cvss) }} / 10.0
+                        </span>
+                      {% else %}
+                        <span class="font-monospace text-secondary">
+                          {{ "%.1f"|format(cvss) }} / 10.0
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if sev in ['critical', 'high'] %}
+                        <span class="badge bg-danger text-uppercase fw-bold">{{ sev }}</span>
+                      {% elif sev == 'medium' %}
+                        <span class="badge bg-warning text-dark text-uppercase fw-bold">MEDIUM</span>
+                      {% else %}
+                        <span class="badge bg-dark border text-secondary text-uppercase">{{ sev }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-secondary text-truncate" style="max-width: 280px;" title="{{ finding.remediation_steps }}">
+                      {{ finding.remediation_steps }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 2 Detailed Findings Grid (Strict Visual Hierarchy) -->
+        <div class="vstack gap-4">
+          {% for finding in js_list %}
+            {% set sev = finding.severity | lower %}
+            {% set cvss = finding.cvss_score | default(3.0) | float %}
+            {% set active_cve = finding.cve_id if (finding.cve_id and finding.cve_id.startswith('CVE-')) else (finding.cves[0] if (finding.cves and finding.cves[0].startswith('CVE-')) else None) %}
+
+            <article class="vuln-card p-4 border-{{ sev }}" data-severity="{{ sev }}">
+              <!-- 1. MOST VISUALLY DOMINANT: CVSS SCORE & RISK LEVEL (RED for Critical/High, ORANGE for Medium) -->
+              <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 pb-3 border-bottom border-secondary-subtle">
+                <div class="d-flex align-items-center gap-3">
+                  {% if sev in ['critical', 'high'] or cvss >= 7.0 %}
+                    <div class="cvss-module cvss-danger">
+                      <div class="cvss-sub">CVSS v3.1</div>
+                      <div class="cvss-score-val font-monospace">{{ "%.1f"|format(cvss) }}</div>
+                      <div class="cvss-sub mt-1">{{ 'CRITICAL' if (sev == 'critical' or cvss >= 9.0) else 'HIGH' }}</div>
+                    </div>
+                  {% elif sev == 'medium' or cvss >= 4.0 %}
+                    <div class="cvss-module cvss-warning">
+                      <div class="cvss-sub">CVSS v3.1</div>
+                      <div class="cvss-score-val font-monospace">{{ "%.1f"|format(cvss) }}</div>
+                      <div class="cvss-sub mt-1">MEDIUM</div>
+                    </div>
+                  {% else %}
+                    <div class="cvss-module cvss-neutral">
+                      <div class="cvss-sub">CVSS v3.1</div>
+                      <div class="cvss-score-val font-monospace">{{ "%.1f"|format(cvss) }}</div>
+                      <div class="cvss-sub mt-1 text-secondary">LOW / INFO</div>
+                    </div>
+                  {% endif %}
+
+                  <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                      {% if sev in ['critical', 'high'] %}
+                        <span class="badge bg-danger text-uppercase fw-bold font-monospace px-2 py-1">
+                          {{ sev }} RISK
+                        </span>
+                      {% elif sev == 'medium' %}
+                        <span class="badge bg-warning text-dark text-uppercase fw-bold font-monospace px-2 py-1">
+                          MEDIUM RISK
+                        </span>
+                      {% else %}
+                        <span class="badge bg-dark border text-secondary text-uppercase fw-medium font-monospace px-2 py-1">
+                          {{ sev }} RISK
+                        </span>
+                      {% endif %}
+                      <span class="font-monospace text-secondary small">JS-REF #{{ loop.index }}</span>
+                    </div>
+                    <h3 class="h5 fw-bold text-light mb-0">{{ finding.vuln_type }}</h3>
+                  </div>
+                </div>
+
+                <div class="text-end font-monospace small text-secondary">
+                  <div>Status: <span class="badge bg-danger-subtle text-danger border border-danger-subtle">UNRESOLVED</span></div>
+                  <div class="text-secondary mt-1" style="font-size: 0.72rem;">Scope: Client-Side JS</div>
+                </div>
+              </div>
+
+              <!-- 2. BELOW THE SCORE: REF / CVE ID & CLICKABLE LINK (Neutral Buttons) -->
+              <div class="my-3 p-3 bg-dark-subtle rounded border border-secondary-subtle d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <i class="bi bi-fingerprint text-secondary fs-5"></i>
+                  {% set active_ref = finding.ref_id or finding.cve_id %}
+                  {% if active_ref and active_ref.startswith('CWE-') %}
+                    <span class="text-secondary small fw-bold font-monospace text-uppercase">Reference:</span>
+                    <span class="cve-pill font-monospace"><span class="text-secondary">Reference:</span> {{ active_ref }}</span>
+                  {% elif active_ref %}
+                    <span class="text-secondary small fw-bold font-monospace text-uppercase">Vulnerability Identifier:</span>
+                    <span class="cve-pill font-monospace">{{ active_ref }}</span>
+                  {% endif %}
+
+                  {% if finding.cves %}
+                    {% for cve in finding.cves %}
+                      {% if cve != active_ref %}
+                        <span class="cve-pill font-monospace">{{ cve }}</span>
+                      {% endif %}
+                    {% endfor %}
+                  {% elif not active_ref %}
+                    <span class="cve-pill font-monospace text-secondary">CWE-CLIENT-JS</span>
+                  {% endif %}
+                </div>
+
+                <!-- Neutral Outline Buttons (No Blue Accent) -->
+                <div class="d-flex flex-wrap gap-2">
+                  {% if active_cve %}
+                    <a
+                      href="https://nvd.nist.gov/vuln/detail/{{ active_cve }}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-box-arrow-up-right me-1"></i> NVD Record ({{ active_cve }})
+                    </a>
+                  {% elif active_ref and active_ref.startswith('CWE-') %}
+                    <a
+                      href="https://cwe.mitre.org/data/definitions/{{ active_ref.replace('CWE-', '') }}.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-shield-check me-1"></i> MITRE Reference Record ({{ active_ref }})
+                    </a>
+                  {% endif %}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-box-arrow-up-right me-1"></i> NVD Database Record ({{ active_cve }})
+                    </a>
+                  {% elif finding.reference_link %}
+                    <a
+                      href="{{ finding.reference_link }}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-box-arrow-up-right me-1"></i> Technical Advisory Reference
+                    </a>
+                  {% else %}
+                    <a
+                      href="https://nvd.nist.gov/vuln/search/results?form_type=Basic&results_type=overview&query={{ finding.vuln_type | urlencode }}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-sm btn-outline-secondary font-monospace"
+                    >
+                      <i class="bi bi-search me-1"></i> Query NIST NVD
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Technical Description & Observation Evidence -->
+              <div class="mb-3">
+                <div class="text-secondary small font-monospace text-uppercase fw-semibold mb-1">
+                  Technical Impact & Observation:
+                </div>
+                <p class="text-body-secondary mb-2 lh-base">
+                  {{ finding.description }}
+                </p>
+
+                {% if finding.evidence %}
+                <div class="evidence-block p-3 font-monospace small">
+                  <div class="text-secondary small fw-bold mb-1">// Observed Target Script / Dependency Evidence:</div>
+                  <pre class="mb-0 text-break" style="white-space: pre-wrap; color: #cbd5e1;">{{ finding.evidence }}</pre>
+                </div>
+                {% endif %}
+              </div>
+
+              <!-- 3. EXACT REMEDIATION STEPS -->
+              <div class="remediation-box p-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <i class="bi bi-shield-check text-secondary fs-5"></i>
+                  <strong class="text-secondary font-monospace text-uppercase small tracking-wider">
+                    Mandatory Technical Remediation Steps:
+                  </strong>
+                </div>
+                <div class="text-light font-monospace small lh-base">
+                  {{ finding.remediation_steps or finding.remediation or 'Upgrade to latest patched library version and sanitize all untrusted DOM inputs.' }}
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Section 2 Empty State -->
+        <div class="neutral-card text-center py-5">
+          <div class="card-body">
+            <i class="bi bi-shield-check text-secondary display-4 mb-3"></i>
+            <h3 class="h6 text-light fw-bold font-monospace">Zero Client-Side JavaScript Vulnerabilities Detected</h3>
+            <p class="text-secondary font-monospace small max-w-500 mx-auto mb-0" style="font-size: 0.78rem;">
+              Software Composition Analysis (SCA) detected no outdated 3rd-party libraries, DOM XSS sink invocations, or exposed credential secrets.
+            </p>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Audited Components Inventory Table (if available) -->
+      {% if components %}
+        <div class="neutral-card mt-4">
+          <div class="card-header bg-dark border-bottom border-secondary-subtle py-2 d-flex justify-content-between align-items-center">
+            <span class="font-monospace small fw-bold text-uppercase text-secondary">
+              <i class="bi bi-layers text-secondary me-1"></i> Client-Side JavaScript Component Inventory (Retire.js)
+            </span>
+            <span class="badge bg-dark border border-secondary text-secondary font-monospace small">
+              {{ components | length }} Identified Package{{ 's' if components | length != 1 else '' }}
+            </span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-audit mb-0 font-monospace small align-middle">
+                <thead>
+                  <tr>
+                    <th style="width: 22%;">Package / Version</th>
+                    <th style="width: 14%;">Status</th>
+                    <th style="width: 24%;">Identified CVEs</th>
+                    <th style="width: 40%;">Remediation Advisory</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for comp in components %}
+                  <tr>
+                    <td>
+                      <div class="fw-bold text-light">{{ comp.name }}</div>
+                      <div class="text-secondary" style="font-size: 0.75rem;">v{{ comp.version }}</div>
+                    </td>
+                    <td>
+                      {% if comp.status == 'VULNERABLE' or comp.is_vulnerable %}
+                        <span class="badge bg-danger text-uppercase fw-bold px-2 py-1">VULNERABLE</span>
+                      {% else %}
+                        <span class="badge bg-dark border border-secondary text-secondary text-uppercase fw-medium px-2 py-1">UP-TO-DATE</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if comp.cves %}
+                        <div class="d-flex flex-wrap gap-1">
+                          {% for cve in comp.cves %}
+                            <a
+                              href="https://nvd.nist.gov/vuln/detail/{{ cve }}"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="badge bg-dark border text-light text-decoration-none"
+                            >
+                              {{ cve }}
+                            </a>
+                          {% endfor %}
+                        </div>
+                      {% else %}
+                        <span class="text-secondary small">None Known</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="text-light">{{ comp.remediation }}</div>
+                      {% if comp.source %}
+                      <div class="text-secondary text-truncate" style="max-width: 450px; font-size: 0.72rem;" title="{{ comp.source }}">
+                        Source: <code>{{ comp.source }}</code>
+                      </div>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+  </main>
+
+  <!-- Technical Audit Footer -->
+  <footer class="py-4 border-top border-secondary-subtle text-center text-secondary font-monospace" style="font-size: 0.75rem;">
+    <div class="container-fluid px-lg-5">
+      <div>RESTRICTED // INTERNAL IT SECURITY AUDIT REPORT &mdash; GENERATED BY WEBVULNSCANNER</div>
+      <div class="text-secondary mt-1" style="font-size: 0.7rem;">
+        Deterministic Security Verification Engine &bull; Strictly for Authorized System Administrators and Security Personnel
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"
+  ></script>
+
+  <!-- Client-Side Severity Filter Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const cards = document.querySelectorAll('.vuln-card');
+      const countDisplay = document.getElementById('visible-count');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => {
+            b.classList.remove('btn-secondary', 'active');
+            b.classList.add('btn-outline-secondary');
+          });
+          btn.classList.remove('btn-outline-secondary');
+          btn.classList.add('btn-secondary', 'active');
+
+          const filter = btn.dataset.filter;
+          let visible = 0;
+
+          cards.forEach(card => {
+            if (filter === 'all' || card.dataset.severity === filter) {
+              card.style.display = 'block';
+              visible++;
+            } else {
+              card.style.display = 'none';
+            }
+          });
+
+          if (countDisplay) {
+            countDisplay.textContent = visible;
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
