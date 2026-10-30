@@ -204,11 +204,6 @@ def dummy_scan(url: str) -> dict:
         'pdf_path':     final_pdf_path,
         'scan_coverage': scan_coverage,
     }
-        'findings':     vulnerabilities,
-        'components':   components_inventory,
-        'total':        len(vulnerabilities),
-        'pdf_path':     final_pdf_path,
-    }
 
 
 # ---------------------------------------------------------------------------
