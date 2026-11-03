@@ -210,7 +210,7 @@ def fetch_retirejs_repository(timeout: tuple[float, float] = (2.5, 4.0)) -> tupl
         resp = requests.get(
             url,
             timeout=timeout,
-            headers={'User-Agent': 'Mozilla/5.0 (compatible; WebVulnScanner/2.0)'}
+            headers={'User-Agent': 'Mozilla/5.0 (compatible; FrontGuard/2.0)'}
         )
         if resp.status_code == 200:
             data = resp.json()
@@ -289,7 +289,7 @@ def query_osv_vulnerabilities(npm_package: str, version_str: str, timeout: float
             'https://api.osv.dev/v1/query',
             json=payload,
             timeout=(CONNECT_TIMEOUT_API, READ_TIMEOUT_API),
-            headers={'User-Agent': 'Mozilla/5.0 (compatible; WebVulnScanner/2.0)'}
+            headers={'User-Agent': 'Mozilla/5.0 (compatible; FrontGuard/2.0)'}
         )
         if resp.status_code != 200:
             return ([], False)
@@ -371,7 +371,7 @@ def query_npm_latest_version(npm_package: str, timeout: float = 3.0) -> str | No
         resp = requests.get(
             f"https://registry.npmjs.org/{npm_package}/latest",
             timeout=timeout,
-            headers={'User-Agent': 'Mozilla/5.0 (compatible; WebVulnScanner/2.0)'}
+            headers={'User-Agent': 'Mozilla/5.0 (compatible; FrontGuard/2.0)'}
         )
         if resp.status_code == 200:
             ver = resp.json().get('version')
@@ -991,7 +991,7 @@ def _fetch_script_content(src: str, base_url: str = '', max_bytes: int = 262144)
             timeout=4.0,
             stream=True,
             verify=False,
-            headers={'User-Agent': 'Mozilla/5.0 (compatible; WebVulnScanner/2.0)'}
+            headers={'User-Agent': 'Mozilla/5.0 (compatible; FrontGuard/2.0)'}
         )
         content_chunks = []
         total_len = 0

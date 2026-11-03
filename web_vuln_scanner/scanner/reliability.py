@@ -118,7 +118,7 @@ def retry_get(
     Only retries on network errors and 429/503 with Retry-After; never on 4xx/5xx otherwise.
     Returns None if all attempts fail or the budget is exhausted.
     """
-    headers = headers or {'User-Agent': 'Mozilla/5.0 (compatible; WebVulnScanner/2.0)'}
+    headers = headers or {'User-Agent': 'Mozilla/5.0 (compatible; FrontGuard/2.0)'}
     for attempt in range(max_retries + 1):
         if budget and budget.is_expired():
             return None

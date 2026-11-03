@@ -81,7 +81,7 @@ class NumberedCanvas(canvas.Canvas):
         if self._pageNumber > 1:
             self.setFont('Helvetica', 6.5)
             self.setFillColor(TEXT_MUTED)
-            self.drawString(13 * mm, PAGE_H - 10 * mm, 'WEBVULNSCANNER // SECURITY AUDIT REPORT')
+            self.drawString(13 * mm, PAGE_H - 10 * mm, 'FRONTGUARD // SECURITY AUDIT REPORT')
             self.drawRightString(PAGE_W - 13 * mm, PAGE_H - 10 * mm, 'SECURITY ASSESSMENT')
             self.setStrokeColor(SLATE_BORDER)
             self.setLineWidth(0.3)
@@ -90,7 +90,7 @@ class NumberedCanvas(canvas.Canvas):
         # Bottom footer on all pages
         self.setFont('Helvetica', 6.5)
         self.setFillColor(TEXT_MUTED)
-        self.drawString(13 * mm, 8 * mm, 'WEBVULNSCANNER AUDIT RECORD — PASSIVE WEB APPLICATION SECURITY SCAN')
+        self.drawString(13 * mm, 8 * mm, 'FRONTGUARD AUDIT RECORD — AUTOMATED PASSIVE WEB SECURITY VULNERABILITY SCANNER')
         self.drawRightString(PAGE_W - 13 * mm, 8 * mm, f'Page {self._pageNumber} of {page_count}')
         self.setStrokeColor(SLATE_BORDER)
         self.setLineWidth(0.3)
@@ -524,7 +524,7 @@ def generate_audit_report(scan_data: dict, output_filename: str):
     # -------------------------------------------------------------------------
     header_data = [
         [
-            Paragraph("WEBVULNSCANNER ENTERPRISE // IT SECURITY AUDIT REPORT", styles['BannerTitle']),
+            Paragraph("FRONTGUARD // AUTOMATED PASSIVE WEB SECURITY VULNERABILITY SCANNER", styles['BannerTitle']),
             Paragraph(
                 f"AUDIT ID: #{scan_data.get('id', 'N/A')}<br/>"
                 f"TIMESTAMP: {scan_data.get('date', datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))} UTC",
