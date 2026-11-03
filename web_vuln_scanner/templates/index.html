@@ -139,7 +139,11 @@
       {% if messages %}
         {% for category, message in messages %}
           <div class="alert alert-dark border-secondary d-flex align-items-center gap-2 font-monospace small mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle text-warning"></i>
+            {% if category in ['success', 'info'] %}
+              <i class="bi bi-check-circle text-success"></i>
+            {% else %}
+              <i class="bi bi-exclamation-triangle text-warning"></i>
+            {% endif %}
             <span>{{ message }}</span>
           </div>
         {% endfor %}
@@ -232,9 +236,18 @@
             Verifiable records of completed vulnerability assessments and audit artifacts.
           </div>
         </div>
-        <span class="badge bg-secondary font-monospace">
-          {{ scans | length }} Records
-        </span>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-secondary font-monospace">
+            {{ scans | length }} Records
+          </span>
+          {% if scans %}
+            <form action="/clear-history" method="POST" class="m-0 p-0" onsubmit="return confirm('Are you sure you want to clear the entire audit ledger and target history? This will permanently delete all history records.');">
+              <button type="submit" class="btn btn-outline-danger btn-sm font-monospace d-flex align-items-center gap-1 py-1 px-2" style="font-size: 0.75rem;" title="Clear all audit records">
+                <i class="bi bi-trash3"></i> Clear History
+              </button>
+            </form>
+          {% endif %}
+        </div>
       </div>
 
       <div class="card-body p-0">

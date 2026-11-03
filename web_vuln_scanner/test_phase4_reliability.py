@@ -408,5 +408,33 @@ class TestLocalBenchmarks:
         assert len(findings) == 0, f"Expected 0 findings on hardened page, got: {[f['vuln_type'] for f in findings]}"
 
 
+# ---------------------------------------------------------------------------
+# 8. Audit Ledger & Target History Clearing Tests
+# ---------------------------------------------------------------------------
+
+class TestAuditLedgerClearing:
+    def test_clear_scan_history_deletes_records(self):
+        from database.db_handler import insert_scan_record, get_scan_history, clear_scan_history
+        insert_scan_record('https://example.com/test-clear', findings_count=2, risk_level='medium', pdf_path='/fake/path.pdf')
+        history_before = get_scan_history()
+        assert len(history_before) >= 1
+
+        deleted_count = clear_scan_history()
+        assert deleted_count >= 1
+
+        history_after = get_scan_history()
+        assert len(history_after) == 0
+
+    def test_clear_history_flask_route(self):
+        from main import app
+        from database.db_handler import insert_scan_record
+        insert_scan_record('https://example.com/test-flask-clear', findings_count=1, risk_level='low', pdf_path='/fake/path2.pdf')
+
+        client = app.test_client()
+        resp = client.post('/clear-history', follow_redirects=True)
+        assert resp.status_code == 200
+        assert 'Audit Ledger successfully cleared' in resp.data.decode()
+
+
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

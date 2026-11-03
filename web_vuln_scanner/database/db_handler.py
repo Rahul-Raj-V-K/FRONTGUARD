@@ -204,6 +204,24 @@ def get_scan_history() -> list[dict]:
     return [dict(row) for row in rows]
 
 
+def clear_scan_history() -> int:
+    """
+    Deletes all records from the scan_history table.
+    Returns the count of deleted records.
+    """
+    conn = _connect()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM scan_history")
+    count = cur.rowcount
+    try:
+        cur.execute("DELETE FROM sqlite_sequence WHERE name = 'scan_history'")
+    except sqlite3.OperationalError:
+        pass
+    conn.commit()
+    conn.close()
+    return count
+
+
 def get_vulnerability_rule(identifier: str) -> dict | None:
     conn = _connect()
     cur = conn.cursor()

@@ -6,7 +6,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(__file__))
 
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response, abort
-from database.db_handler import init_db, insert_scan_record, get_scan_history, get_vulnerability_rule
+from database.db_handler import init_db, insert_scan_record, get_scan_history, get_vulnerability_rule, clear_scan_history
 from scanner.extractor import extract_target_data
 from scanner.matcher import run_matcher
 from scanner.retirejs import scan_retirejs
@@ -214,6 +214,14 @@ def dummy_scan(url: str) -> dict:
 def index():
     scans = get_scan_history()
     return render_template('index.html', scans=scans)
+
+
+@app.route('/clear-history', methods=['POST'])
+@app.route('/clear_history', methods=['POST'])
+def clear_history():
+    deleted_count = clear_scan_history()
+    flash(f'Audit Ledger successfully cleared ({deleted_count} record{"s" if deleted_count != 1 else ""} removed).', 'info')
+    return redirect(url_for('index'))
 
 
 @app.route('/scan', methods=['POST'])
