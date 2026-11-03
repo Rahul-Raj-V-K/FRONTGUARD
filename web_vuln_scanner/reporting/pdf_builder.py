@@ -81,8 +81,8 @@ class NumberedCanvas(canvas.Canvas):
         if self._pageNumber > 1:
             self.setFont('Helvetica', 6.5)
             self.setFillColor(TEXT_MUTED)
-            self.drawString(13 * mm, PAGE_H - 10 * mm, 'WEBVULNSCANNER ENTERPRISE // INTERNAL IT SECURITY AUDIT DOSSIER')
-            self.drawRightString(PAGE_W - 13 * mm, PAGE_H - 10 * mm, 'RESTRICTED / CONFIDENTIAL')
+            self.drawString(13 * mm, PAGE_H - 10 * mm, 'WEBVULNSCANNER // SECURITY AUDIT REPORT')
+            self.drawRightString(PAGE_W - 13 * mm, PAGE_H - 10 * mm, 'SECURITY ASSESSMENT')
             self.setStrokeColor(SLATE_BORDER)
             self.setLineWidth(0.3)
             self.line(13 * mm, PAGE_H - 12 * mm, PAGE_W - 13 * mm, PAGE_H - 12 * mm)
@@ -90,7 +90,7 @@ class NumberedCanvas(canvas.Canvas):
         # Bottom footer on all pages
         self.setFont('Helvetica', 6.5)
         self.setFillColor(TEXT_MUTED)
-        self.drawString(13 * mm, 8 * mm, 'RESTRICTED // INTERNAL IT AUDIT RECORD — STRICTLY FOR AUTHORIZED PERSONNEL ONLY')
+        self.drawString(13 * mm, 8 * mm, 'WEBVULNSCANNER AUDIT RECORD — PASSIVE WEB APPLICATION SECURITY SCAN')
         self.drawRightString(PAGE_W - 13 * mm, 8 * mm, f'Page {self._pageNumber} of {page_count}')
         self.setStrokeColor(SLATE_BORDER)
         self.setLineWidth(0.3)
