@@ -1,6 +1,9 @@
 import os
 import sqlite3
-from datetime import datetime
+import logging
+from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'scanner.db')
 SCHEMA_PATH = os.path.join(os.path.dirname(__file__), 'schema.sql')
@@ -182,7 +185,7 @@ def init_db():
 
 def insert_scan_record(target_url: str, findings_count: int,
                        risk_level: str, pdf_path: str, target_ip: str = 'N/A') -> int:
-    scan_date = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    scan_date = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
     conn = _connect()
     cur = conn.execute(
         """

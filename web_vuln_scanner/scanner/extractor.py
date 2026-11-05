@@ -1,6 +1,7 @@
 import socket
 import urllib.parse
 import ipaddress
+import urllib3
 import requests
 from bs4 import BeautifulSoup, Comment
 
@@ -269,8 +270,11 @@ def extract_target_data(url: str) -> TargetData:
             'ref_id': 'CWE-295',
             'cvss_score': 7.4,
         })
-        # Retry with verify=False so scanner can evaluate headers
+        # Retry with verify=False so scanner can evaluate headers despite invalid cert.
+        # The invalid certificate is already recorded as a high-severity finding above.
+        # Suppress InsecureRequestWarning — the cert issue IS the finding.
         try:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             resp = requests.get(
                 url,
                 timeout=TARGET_TIMEOUT,

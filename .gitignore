@@ -21,6 +21,11 @@ env/
 .venv/
 ENV/
 
+# ── Secrets — NEVER commit real .env files ───────────────────────────────────
+.env
+.env.*
+!.env.example
+
 # ── Runtime-generated data (keep locally, never commit) ───────────────────────
 *.db
 *.sqlite
@@ -44,3 +49,4 @@ desktop.ini
 synopsis/
 SESSION_SUMMARY.md
 docs/
+

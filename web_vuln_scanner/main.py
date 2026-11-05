@@ -1,9 +1,13 @@
 import sys
 import os
 import json
-from datetime import datetime
+import logging
+from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
+
+from dotenv import load_dotenv
+load_dotenv()  # Loads FLASK_SECRET_KEY and FLASK_DEBUG from .env
 
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response, abort
 from database.db_handler import init_db, insert_scan_record, get_scan_history, get_vulnerability_rule, clear_scan_history
@@ -13,8 +17,12 @@ from scanner.retirejs import scan_retirejs
 from reporting.pdf_builder import generate_audit_report
 from scanner.reliability import BoundedTTLCache, ScanBudget, GLOBAL_SCAN_BUDGET, ScanStatus
 
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
-app.secret_key = 'change-this-in-production-32bytes'
+# Secret key is loaded from .env — the app will crash on startup if the variable is missing,
+# which is intentional (fail-fast is safer than silently using a None key).
+app.secret_key = os.environ['FLASK_SECRET_KEY']
 
 REPORTS_DIR = os.path.join(os.path.dirname(__file__), 'reports')
 
@@ -124,7 +132,7 @@ def dummy_scan(url: str) -> dict:
     worst = max((sev_rank.get(v['severity'], 0) for v in vulnerabilities), default=0)
     risk_level = {4: 'critical', 3: 'high', 2: 'medium', 1: 'low', 0: 'info'}[worst]
 
-    scan_date = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    scan_date = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
 
     header_vulns = []
     js_vulns = []
@@ -157,7 +165,7 @@ def dummy_scan(url: str) -> dict:
 
     # Step 3 — PDF generation (save directly to /reports)
     os.makedirs(REPORTS_DIR, exist_ok=True)
-    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+    timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
     domain_slug = url.replace('https://', '').replace('http://', '').split('/')[0].replace(':', '_')
     pdf_filename = f'scan_{domain_slug}_{timestamp}.pdf'
     final_pdf_path = os.path.join(REPORTS_DIR, pdf_filename)
@@ -184,8 +192,8 @@ def dummy_scan(url: str) -> dict:
     try:
         with open(findings_json_path, 'w', encoding='utf-8') as f:
             json.dump(cache_payload, f, indent=2)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Failed to write findings JSON %s: %s", findings_json_path, exc)
 
     # Cache findings and components in memory
     _findings_cache.set(str(row_id), cache_payload)
@@ -423,4 +431,5 @@ def download_pdf(scan_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    app.run(debug=debug_mode, port=5000)
