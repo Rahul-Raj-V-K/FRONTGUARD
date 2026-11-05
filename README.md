@@ -2,6 +2,8 @@
 
 A production-grade, passive web application security scanner built with Python, Flask, and ReportLab. FRONTGUARD performs automated HTTP response security header validation, client-side JavaScript software composition analysis (SCA) against live CVE feeds, credential exposure auditing, and generates enterprise PDF audit reports.
 
+> 📖 **Evaluator & Installation Manual:** See [INSTALLATION_AND_USER_GUIDE.md](INSTALLATION_AND_USER_GUIDE.md) for a complete step-by-step installation, user operations, and test verification guide.
+
 ---
 
 ## Key Capabilities

@@ -20,9 +20,9 @@ from scanner.reliability import BoundedTTLCache, ScanBudget, GLOBAL_SCAN_BUDGET,
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-# Secret key is loaded from .env — the app will crash on startup if the variable is missing,
-# which is intentional (fail-fast is safer than silently using a None key).
-app.secret_key = os.environ['FLASK_SECRET_KEY']
+# Secret key is loaded from .env if present, or automatically generated using os.urandom
+# to ensure zero-configuration execution for evaluators and standalone zip deployments.
+app.secret_key = os.environ.get('FLASK_SECRET_KEY') or os.urandom(32).hex()
 
 REPORTS_DIR = os.path.join(os.path.dirname(__file__), 'reports')
 
