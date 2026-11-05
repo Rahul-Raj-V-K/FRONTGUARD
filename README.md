@@ -100,16 +100,11 @@ cd FRONTGUARD
 
 # Install required dependencies
 pip install -r requirements.txt
-
-# Create your local environment file from the template
-cp .env.example .env
 ```
 
-To generate a secure 32-byte secret key for your `.env`:
-```powershell
-python -c "import secrets; print(secrets.token_hex(32))"
-```
-Paste this generated key into your `.env` file as `FLASK_SECRET_KEY`.
+> **Note on Configuration:** FRONTGUARD works **100% out of the box with zero manual configuration**. If no `.env` file is present, the app automatically generates a cryptographically secure 32-byte secret key in memory (`os.urandom(32).hex()`).
+> 
+> *(Optional: To use a fixed custom key, copy `.env.example` to `.env` and paste a generated key from `python -c "import secrets; print(secrets.token_hex(32))"`).*
 
 ### 3. Launching the Web Interface
 

@@ -14,6 +14,7 @@
 4. [Step-by-Step Installation](#4-step-by-step-installation)
    - [Method 1: Virtual Environment (Recommended)](#method-1-virtual-environment-recommended)
    - [Method 2: Direct System Installation](#method-2-direct-system-installation)
+   - [Method 3: Flask Secret Key & Environment Configuration](#method-3-flask-secret-key--environment-configuration)
 5. [Starting the Application](#5-starting-the-application)
 6. [User Guide: Operating the Scanner](#6-user-guide-operating-the-scanner)
    - [6.1 Launching a Target Vulnerability Audit](#61-launching-a-target-vulnerability-audit)
@@ -138,7 +139,42 @@ pip install -r requirements.txt
 pip3 install -r requirements.txt
 ```
 
-> **Note on Configuration:** FRONTGUARD includes automated self-configuration. If no `.env` file is provided, the application generates a secure 32-byte cryptographic session key automatically in-memory on startup. No manual file editing is required to run the project.
+---
+
+### 4.3 Flask Secret Key: Is It Needed?
+
+#### What is the Flask Secret Key?
+In Flask, a secret key is required internally to cryptographically sign client-side session cookies and power UI notification messages (such as `flash('Target endpoint required')` or `flash('Audit Ledger cleared')`).
+
+#### Do you or the examiner need to configure it manually?
+**NO. Manual configuration is completely optional.** 
+
+FRONTGUARD implements an **intelligent dual-mode configuration** in `main.py`:
+
+```python
+# main.py (Lines 22-25)
+app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY') or os.urandom(32).hex()
+```
+
+This design provides two operational modes:
+
+1. **Default Academic / Evaluator Mode (Zero-Configuration — Recommended):**
+   - When the university examiner unzips the project and runs `python main.py`, **no `.env` file is required**.
+   - The application automatically generates a random, cryptographically secure 32-byte hexadecimal key on startup using Python's built-in `os.urandom(32).hex()`.
+   - The application starts immediately without prompts, missing key errors, or manual file edits.
+
+2. **Custom / Production Mode (Optional):**
+   - If you wish to set a fixed, persistent secret key, copy `.env.example` to `.env`:
+     ```bash
+     # Optional: Create custom .env
+     cp .env.example .env
+     ```
+   - Generate and paste a 32-byte secret key:
+     ```bash
+     python -c "import secrets; print(secrets.token_hex(32))"
+     ```
+   - Add it to `.env` as `FLASK_SECRET_KEY=<your-key>`. If present, FRONTGUARD will prioritize your custom key over the automatic fallback.
 
 ---
 
@@ -326,6 +362,9 @@ To scan external live sites during a viva, safe public demonstration targets inc
 - **Cause:** You attempted to scan an internal or loopback IP address (such as `http://127.0.0.1`, `http://localhost`, or `http://192.168.1.1`).
 - **Behavior:** This demonstrates FRONTGUARD's built-in **Server-Side Request Forgery (SSRF) Defense**. The scanner actively rejects targets resolving to private, loopback, or link-local network segments to safeguard internal infrastructure.
 
+### Q6: Do I need to create a `.env` file or configure `FLASK_SECRET_KEY`?
+- **Answer:** **No.** You do not need to create or edit any configuration file. If no `.env` file is present, FRONTGUARD automatically generates a cryptographically secure 32-byte key in memory on the fly (`os.urandom(32).hex()`). You can simply unzip the project and run `python main.py` directly.
+
 ---
 
 ## 10. Summary Checklist for Submitting Project ZIP
@@ -339,3 +378,4 @@ Before creating the final ZIP file to submit to the university, verify:
 
 ---
 *FRONTGUARD: Automated Passive Web Security Vulnerability Scanner — MCA Capstone Submission.*
+
