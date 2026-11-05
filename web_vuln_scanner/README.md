@@ -104,3 +104,4 @@ web_vuln_scanner/
 - **Single-Page Depth**: Scans inspect the target landing page and its directly loaded script dependencies.
 - **Air-Gapped Environments**: When executed without internet access, live OSV/npm queries fall back to the local database, with findings explicitly marked as offline data.
 - **Aggressive WAF Challenges**: Targets requiring interactive JavaScript challenges (Cloudflare Turnstile, reCAPTCHA) are flagged as `BLOCKED` rather than evaluating the challenge page as origin code.
+

@@ -21,3 +21,4 @@ python -m pytest web_vuln_scanner --tb=short -q
 All **160 tests pass** across Phase 2, Phase 3, and Phase 4.
 
 See detailed documentation in [web_vuln_scanner/README.md](web_vuln_scanner/README.md) and [web_vuln_scanner/TESTING.md](web_vuln_scanner/TESTING.md).
+
