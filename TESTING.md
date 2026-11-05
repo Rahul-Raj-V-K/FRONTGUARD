@@ -5,10 +5,10 @@
 Run the complete test suite from the repository root:
 
 ```powershell
-python -m pytest web_vuln_scanner --tb=short -q
+python -m pytest --tb=short -q
 ```
 
-All **160 unit tests** execute in under 1 second with 100% pass rate.
+All **162 unit tests** execute in under 1 second with 100% pass rate.
 
 ---
 
@@ -18,8 +18,8 @@ All **160 unit tests** execute in under 1 second with 100% pass rate.
 |-----------------|------------|------------|-----------|--------|
 | `test_phase2_headers.py` | HTTP Security Header Validation (CSP directives, HSTS, XFO, XCTO, Referrer-Policy, COOP, CORP, COEP, Deprecated headers, HTTP/HTTPS redirect diff) | 84 tests | 100% | ✅ Passing |
 | `test_phase3_library_detection.py` | Client-Side Library Detection Accuracy (Custom 4-part version comparator, numeric pre-releases, +build metadata, banner specificity, query-string signals, confidence scoring, Retire.js mapping, conflict detection) | 49 tests | 100% | ✅ Passing |
-| `test_phase4_reliability.py` | Reliability, Hardening & Benchmarks (WAF/Challenge detection, bounded retry with Retry-After, scan budget, thread-safe bounded TTL cache, SSRF private IP protection, real-world pinned fixtures, local test pages) | 27 tests | 100% | ✅ Passing |
-| **Total** | **Full End-to-End Suite** | **160 tests** | **100%** | **✅ All Passing** |
+| `test_phase4_reliability.py` | Reliability, Hardening & Benchmarks (WAF/Challenge detection, bounded retry with Retry-After, scan budget, thread-safe bounded TTL cache, SSRF private IP protection, audit ledger clearing, real-world pinned fixtures) | 29 tests | 100% | ✅ Passing |
+| **Total** | **Full End-to-End Suite** | **162 tests** | **100%** | **✅ All Passing** |
 
 ---
 
